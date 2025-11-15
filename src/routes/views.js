@@ -8,9 +8,9 @@ const {
 // Aplicar middleware para agregar información del usuario a todas las vistas
 router.use(addUserToViews);
 
-// GET / - Página principal (redirige según estado de autenticación)
+// GET / - Página principal (redirige según estado de autenticación con Passport)
 router.get("/", (req, res) => {
-  if (req.session.user) {
+  if (req.user) {
     res.redirect("/products");
   } else {
     res.redirect("/login");

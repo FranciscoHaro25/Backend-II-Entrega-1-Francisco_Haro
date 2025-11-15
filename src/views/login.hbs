@@ -100,6 +100,16 @@
 
         <hr class="my-4" />
 
+        <!-- GitHub OAuth Button -->
+        <div class="d-grid mb-3">
+          <a href="/auth/github" class="btn btn-dark">
+            <i class="fab fa-github me-2"></i>
+            Continuar con GitHub
+          </a>
+        </div>
+
+        <hr class="my-4" />
+
         <div class="text-center">
           <p class="mb-0">¿No tienes una cuenta?</p>
           <a href="/register" class="btn btn-link text-primary">
@@ -108,15 +118,14 @@
           </a>
         </div>
 
-        <!-- Información de prueba para el profesor -->
+        <!-- Información del sistema -->
         <div class="alert alert-light mt-4" role="alert">
-          <strong><i class="fas fa-info-circle me-2"></i>Credenciales de prueba:</strong><br
-          />
+          <strong><i class="fas fa-info-circle me-2"></i>Sistema de
+            autenticación:</strong><br />
           <small class="text-muted">
-            <strong>Admin:</strong>
-            adminCoder@coder.com / admin123<br />
-            <strong>Usuario:</strong>
-            cualquier email válido / cualquier contraseña
+            • Autenticación local con bcrypt y Passport.js<br />
+            • OAuth con GitHub disponible<br />
+            • Sesiones persistentes en MongoDB Atlas
           </small>
         </div>
       </div>

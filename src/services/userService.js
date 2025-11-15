@@ -1,70 +1,79 @@
 const User = require("../models/User");
-const {
-  hashPassword,
-  comparePassword,
-  validateEmail,
-  validatePassword,
-} = require("../utils/auth");
+const bcrypt = require("bcrypt");
 
 /**
- * Servicio de usuarios para MongoDB Atlas
- * Maneja todas las operaciones CRUD de usuarios en la base de datos backendII
+ * Servicio de usuarios refactorizado para trabajar con Passport.js
+ * Elimina credenciales hardcodeadas y lógica manual de autenticación
  */
 class UserService {
   /**
-   * Crear un nuevo usuario
+   * Crear nuevo usuario con validaciones
    * @param {Object} userData - Datos del usuario
-   * @returns {Promise<Object>} - Usuario creado o error
+   * @returns {Promise<Object>} - Usuario creado
    */
   async createUser(userData) {
     try {
-      const { firstName, lastName, email, password, age } = userData;
+      const {
+        firstName,
+        lastName,
+        email,
+        password,
+        age,
+        role = "user",
+      } = userData;
 
-      // Validaciones
-      if (!firstName || !lastName || !email || !password || !age) {
+      // Validaciones básicas
+      if (
+        !firstName ||
+        !lastName ||
+        !email ||
+        (!password && !userData.githubId) ||
+        !age
+      ) {
         throw new Error("Todos los campos son obligatorios");
       }
 
-      if (!validateEmail(email)) {
+      if (!this.validateEmail(email)) {
         throw new Error("Formato de email inválido");
       }
 
-      const passwordValidation = validatePassword(password);
-      if (!passwordValidation.isValid) {
-        throw new Error(passwordValidation.message);
-      }
-
-      const ageNum = parseInt(age);
-      if (isNaN(ageNum) || ageNum < 18 || ageNum > 120) {
-        throw new Error("La edad debe ser un número entre 18 y 120 años");
+      if (age < 18 || age > 120) {
+        throw new Error("La edad debe estar entre 18 y 120 años");
       }
 
       // Verificar si el usuario ya existe
-      const existingUser = await User.findByEmail(email);
+      const existingUser = await User.findOne({ email: email.toLowerCase() });
       if (existingUser) {
-        throw new Error("Ya existe una cuenta con este correo electrónico");
+        throw new Error("Este email ya está registrado");
       }
 
-      // Encriptar contraseña
-      const hashedPassword = await hashPassword(password);
+      // Hashear contraseña si se proporciona
+      let hashedPassword = null;
+      if (password) {
+        if (password.length < 6) {
+          throw new Error("La contraseña debe tener al menos 6 caracteres");
+        }
+        hashedPassword = await bcrypt.hash(password, 10);
+      }
 
       // Crear usuario
-      const newUser = new User({
+      const user = new User({
         firstName: firstName.trim(),
         lastName: lastName.trim(),
         email: email.toLowerCase().trim(),
         password: hashedPassword,
-        age: ageNum,
-        role: email.toLowerCase() === "admincoder@coder.com" ? "admin" : "user",
+        age: parseInt(age),
+        role: role,
+        githubId: userData.githubId || null,
+        githubUsername: userData.githubUsername || null,
       });
 
-      const savedUser = await newUser.save();
-
+      const savedUser = await user.save();
       console.log(
-        `✅ Usuario creado exitosamente en MongoDB Atlas: ${savedUser.email} (${savedUser.role})`
+        `✅ Usuario creado en MongoDB Atlas: ${savedUser.email} (${savedUser.role})`
       );
 
-      // Retornar datos sin contraseña
+      // Retornar usuario sin password
       return {
         id: savedUser._id,
         firstName: savedUser.firstName,
@@ -72,166 +81,144 @@ class UserService {
         email: savedUser.email,
         age: savedUser.age,
         role: savedUser.role,
+        githubUsername: savedUser.githubUsername,
         createdAt: savedUser.createdAt,
       };
     } catch (error) {
-      console.error(
-        "❌ Error al crear usuario en MongoDB Atlas:",
-        error.message
-      );
+      console.error("❌ Error al crear usuario:", error.message);
       throw error;
     }
   }
 
   /**
-   * Autenticar usuario
+   * Buscar usuario por email
    * @param {string} email - Email del usuario
-   * @param {string} password - Contraseña del usuario
-   * @returns {Promise<Object>} - Usuario autenticado o error
+   * @returns {Promise<Object|null>} - Usuario encontrado o null
    */
-  async authenticateUser(email, password) {
+  async findUserByEmail(email) {
     try {
-      if (!email || !password) {
-        throw new Error("Email y contraseña son obligatorios");
-      }
+      return await User.findOne({ email: email.toLowerCase() });
+    } catch (error) {
+      console.error("Error buscando usuario por email:", error);
+      throw error;
+    }
+  }
 
-      if (!validateEmail(email)) {
-        throw new Error("Formato de email inválido");
-      }
+  /**
+   * Buscar usuario por ID
+   * @param {string} id - ID del usuario
+   * @returns {Promise<Object|null>} - Usuario encontrado o null
+   */
+  async findUserById(id) {
+    try {
+      return await User.findById(id);
+    } catch (error) {
+      console.error("Error buscando usuario por ID:", error);
+      throw error;
+    }
+  }
 
-      // Buscar usuario en la base de datos
-      const user = await User.findByEmail(email);
+  /**
+   * Buscar usuario por GitHub ID
+   * @param {string} githubId - ID de GitHub
+   * @returns {Promise<Object|null>} - Usuario encontrado o null
+   */
+  async findUserByGithubId(githubId) {
+    try {
+      return await User.findOne({ githubId });
+    } catch (error) {
+      console.error("Error buscando usuario por GitHub ID:", error);
+      throw error;
+    }
+  }
 
-      if (!user) {
-        // Manejo especial para admin si no existe
-        if (
-          email.toLowerCase() === "admincoder@coder.com" &&
-          password === "admin123"
-        ) {
-          return await this.createAdminUser();
-        }
-        throw new Error("Credenciales incorrectas");
-      }
+  /**
+   * Verificar contraseña
+   * @param {string} plainPassword - Contraseña en texto plano
+   * @param {string} hashedPassword - Contraseña hasheada
+   * @returns {Promise<boolean>} - True si coincide
+   */
+  async verifyPassword(plainPassword, hashedPassword) {
+    try {
+      return await bcrypt.compare(plainPassword, hashedPassword);
+    } catch (error) {
+      console.error("Error verificando contraseña:", error);
+      return false;
+    }
+  }
 
-      // Verificar si el usuario está activo
-      if (!user.isActive) {
-        throw new Error("Cuenta desactivada. Contacta al administrador");
-      }
+  /**
+   * Crear usuario administrador desde variables de entorno
+   * Solo se ejecuta si no existe ningún admin y hay variables configuradas
+   */
+  async createAdminUserFromEnv() {
+    try {
+      const adminExists = await User.findOne({ role: "admin" });
 
-      // Verificar contraseña
-      const isValidPassword = await comparePassword(password, user.password);
-
-      // Manejo especial para admin con contraseña directa
       if (
-        !isValidPassword &&
-        email.toLowerCase() === "admincoder@coder.com" &&
-        password === "admin123"
+        !adminExists &&
+        process.env.ADMIN_EMAIL &&
+        process.env.ADMIN_PASSWORD
       ) {
-        // Actualizar contraseña hasheada
-        user.password = await hashPassword("admin123");
-        await user.save();
-      } else if (!isValidPassword) {
-        throw new Error("Credenciales incorrectas");
+        const adminData = {
+          firstName: process.env.ADMIN_FIRST_NAME || "Admin",
+          lastName: process.env.ADMIN_LAST_NAME || "Coder",
+          email: process.env.ADMIN_EMAIL,
+          password: process.env.ADMIN_PASSWORD,
+          age: parseInt(process.env.ADMIN_AGE) || 30,
+          role: "admin",
+        };
+
+        const newAdmin = await this.createUser(adminData);
+        console.log(
+          "✅ Usuario administrador creado desde variables de entorno:",
+          newAdmin.email
+        );
+        return newAdmin;
+      } else if (adminExists) {
+        console.log("ℹ️ Usuario administrador ya existe");
+      } else {
+        console.log("⚠️ Variables de administrador no configuradas en .env");
       }
-
-      // Actualizar último login
-      await user.updateLastLogin();
-
-      console.log(
-        `✅ Login exitoso desde MongoDB Atlas: ${user.email} (${user.role})`
-      );
-
-      // Retornar datos del usuario sin contraseña
-      return {
-        id: user._id,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
-        age: user.age,
-        role: user.role,
-        lastLogin: user.lastLogin,
-      };
     } catch (error) {
-      console.error(
-        "❌ Error en autenticación con MongoDB Atlas:",
-        error.message
-      );
-      throw error;
+      console.error("Error creando usuario administrador:", error);
     }
   }
 
   /**
-   * Crear usuario administrador por defecto
-   * @returns {Promise<Object>} - Usuario admin creado
-   */
-  async createAdminUser() {
-    try {
-      const hashedPassword = await hashPassword("admin123");
-
-      const adminUser = new User({
-        firstName: "Admin",
-        lastName: "Coder",
-        email: "adminCoder@coder.com",
-        password: hashedPassword,
-        age: 30,
-        role: "admin",
-      });
-
-      const savedUser = await adminUser.save();
-      console.log(
-        `✅ Usuario admin creado en MongoDB Atlas: ${savedUser.email}`
-      );
-
-      return {
-        id: savedUser._id,
-        firstName: savedUser.firstName,
-        lastName: savedUser.lastName,
-        email: savedUser.email,
-        age: savedUser.age,
-        role: savedUser.role,
-      };
-    } catch (error) {
-      console.error("❌ Error al crear admin en MongoDB Atlas:", error.message);
-      throw error;
-    }
-  }
-
-  /**
-   * Obtener usuario por ID
-   * @param {string} userId - ID del usuario
-   * @returns {Promise<Object>} - Datos del usuario
-   */
-  async getUserById(userId) {
-    try {
-      const user = await User.findById(userId).select("-password");
-      if (!user) {
-        throw new Error("Usuario no encontrado");
-      }
-      return user;
-    } catch (error) {
-      console.error(
-        "❌ Error al obtener usuario desde MongoDB Atlas:",
-        error.message
-      );
-      throw error;
-    }
-  }
-
-  /**
-   * Obtener todos los usuarios (para debug)
+   * Obtener todos los usuarios (para debugging/admin)
    * @returns {Promise<Array>} - Lista de usuarios
    */
   async getAllUsers() {
     try {
-      const users = await User.find({}, "-password").sort({ createdAt: -1 });
+      const users = await User.find({}, { password: 0 }); // Excluir password
       return users;
     } catch (error) {
-      console.error(
-        "❌ Error al obtener usuarios desde MongoDB Atlas:",
-        error.message
-      );
+      console.error("Error obteniendo usuarios:", error);
       throw error;
     }
+  }
+
+  /**
+   * Actualizar último login
+   * @param {string} userId - ID del usuario
+   */
+  async updateLastLogin(userId) {
+    try {
+      await User.findByIdAndUpdate(userId, { lastLogin: new Date() });
+    } catch (error) {
+      console.error("Error actualizando último login:", error);
+    }
+  }
+
+  /**
+   * Validar formato de email
+   * @param {string} email - Email a validar
+   * @returns {boolean} - True si es válido
+   */
+  validateEmail(email) {
+    const emailRegex = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/;
+    return emailRegex.test(email);
   }
 
   /**
@@ -240,27 +227,31 @@ class UserService {
    */
   async getUserStats() {
     try {
-      const stats = await User.getStats();
       const totalUsers = await User.countDocuments();
-      const activeUsers = await User.countDocuments({ isActive: true });
-      const recentUsers = await User.countDocuments({
-        createdAt: { $gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) },
+      const adminUsers = await User.countDocuments({ role: "admin" });
+      const githubUsers = await User.countDocuments({
+        githubId: { $exists: true, $ne: null },
       });
+      const activeUsers = await User.countDocuments({ isActive: true });
 
       return {
-        totalUsers,
-        activeUsers,
-        recentUsers,
-        usersByRole: stats,
+        total: totalUsers,
+        admins: adminUsers,
+        githubUsers: githubUsers,
+        active: activeUsers,
+        regular: totalUsers - adminUsers,
       };
     } catch (error) {
-      console.error(
-        "❌ Error al obtener estadísticas desde MongoDB Atlas:",
-        error.message
-      );
+      console.error("Error obteniendo estadísticas:", error);
       throw error;
     }
   }
 }
 
-module.exports = new UserService();
+// Exportar instancia singleton
+const userService = new UserService();
+
+// Crear admin automáticamente al importar el servicio (si no existe)
+userService.createAdminUserFromEnv().catch(console.error);
+
+module.exports = userService;

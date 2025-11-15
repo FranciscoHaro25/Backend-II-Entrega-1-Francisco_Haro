@@ -5,8 +5,9 @@ const MongoStore = require("connect-mongo");
 const path = require("path");
 require("dotenv").config();
 
-// Importar configuración de base de datos
+// Importar configuración de base de datos y Passport
 const { connectDB } = require("./config/db");
+const passport = require("./config/passport");
 
 // Importar rutas
 const authRoutes = require("./routes/auth");
@@ -77,10 +78,15 @@ app.use(
   })
 );
 
-// Middleware global para pasar datos de sesión a las vistas
+// Inicializar Passport después de las sesiones
+app.use(passport.initialize());
+app.use(passport.session());
+
+// Middleware global para pasar datos de usuario a las vistas (compatible con Passport)
 app.use((req, res, next) => {
-  res.locals.user = req.session.user || null;
-  res.locals.isAuthenticated = !!req.session.user;
+  res.locals.user = req.user || null;
+  res.locals.isAuthenticated = !!req.user;
+  res.locals.isAdmin = req.user?.role === "admin";
   next();
 });
 

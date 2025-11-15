@@ -34,7 +34,10 @@ const userSchema = new mongoose.Schema(
     },
     password: {
       type: String,
-      required: [true, "La contraseña es obligatoria"],
+      required: function () {
+        // Password es obligatorio solo si no es usuario OAuth
+        return !this.githubId;
+      },
       minlength: [6, "La contraseña debe tener al menos 6 caracteres"],
     },
     age: {
@@ -58,6 +61,16 @@ const userSchema = new mongoose.Schema(
     isActive: {
       type: Boolean,
       default: true,
+    },
+    // Campos para OAuth GitHub
+    githubId: {
+      type: String,
+      unique: true,
+      sparse: true, // Permite que sea único pero opcional
+    },
+    githubUsername: {
+      type: String,
+      trim: true,
     },
     loginAttempts: {
       type: Number,

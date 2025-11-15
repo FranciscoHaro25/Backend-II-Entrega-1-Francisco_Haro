@@ -13,8 +13,8 @@ router.use(addUserToViews);
 // GET /products - Página principal de productos (requiere autenticación)
 router.get("/", logActivity("Acceso a productos"), (req, res) => {
   try {
-    // Información adicional del usuario para el contexto
-    const user = req.session.user;
+    // Información adicional del usuario para el contexto (compatible con Passport)
+    const user = req.user;
 
     console.log(`📦 Usuario ${user.email} (${user.role}) accedió a productos`);
 
@@ -38,7 +38,7 @@ router.get("/", logActivity("Acceso a productos"), (req, res) => {
 
 // GET /products/admin - Panel de administración (solo para administradores)
 router.get("/admin", (req, res) => {
-  if (req.session.user.role !== "admin") {
+  if (req.user.role !== "admin") {
     return res.status(403).render("error", {
       title: "Acceso denegado",
       message: "No tienes permisos para acceder al panel de administración.",
@@ -52,17 +52,18 @@ router.get("/admin", (req, res) => {
 
 // GET /products/user - Información específica del usuario
 router.get("/user", (req, res) => {
-  const user = req.session.user;
+  const user = req.user;
 
   res.json({
     message: "Información del usuario autenticado",
     user: {
-      id: user.id,
+      id: user._id,
       firstName: user.firstName,
       lastName: user.lastName,
       email: user.email,
       age: user.age,
       role: user.role,
+      githubUsername: user.githubUsername || null,
     },
     session: {
       isAuthenticated: true,

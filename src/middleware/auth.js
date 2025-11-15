@@ -1,9 +1,9 @@
 /**
  * Middleware para verificar si el usuario está autenticado
- * Protege rutas que requieren login
+ * Protege rutas que requieren login (compatible con Passport)
  */
 const requireAuth = (req, res, next) => {
-  if (!req.session.user) {
+  if (!req.user) {
     return res.redirect(
       "/login?message=Debes iniciar sesión para acceder a esta página"
     );
@@ -13,16 +13,16 @@ const requireAuth = (req, res, next) => {
 
 /**
  * Middleware para verificar si el usuario es administrador
- * Solo permite acceso a usuarios con rol 'admin'
+ * Solo permite acceso a usuarios con rol 'admin' (compatible con Passport)
  */
 const requireAdmin = (req, res, next) => {
-  if (!req.session.user) {
+  if (!req.user) {
     return res.redirect(
       "/login?message=Debes iniciar sesión para acceder a esta página"
     );
   }
 
-  if (req.session.user.role !== "admin") {
+  if (req.user.role !== "admin") {
     return res.status(403).render("error", {
       title: "Acceso denegado",
       message: "No tienes permisos para acceder a esta sección.",
@@ -35,10 +35,10 @@ const requireAdmin = (req, res, next) => {
 
 /**
  * Middleware para redirigir usuarios ya autenticados
- * Evita que vean páginas de login/register si ya están logueados
+ * Evita que vean páginas de login/register si ya están logueados (compatible con Passport)
  */
 const redirectIfAuthenticated = (req, res, next) => {
-  if (req.session.user) {
+  if (req.user) {
     return res.redirect("/products");
   }
   next();
@@ -46,23 +46,23 @@ const redirectIfAuthenticated = (req, res, next) => {
 
 /**
  * Middleware para agregar información del usuario a las vistas
- * Permite acceso a datos del usuario en todos los templates
+ * Permite acceso a datos del usuario en todos los templates (compatible con Passport)
  */
 const addUserToViews = (req, res, next) => {
-  res.locals.user = req.session.user || null;
-  res.locals.isAuthenticated = !!req.session.user;
-  res.locals.isAdmin = req.session.user?.role === "admin";
+  res.locals.user = req.user || null;
+  res.locals.isAuthenticated = !!req.user;
+  res.locals.isAdmin = req.user?.role === "admin";
   next();
 };
 
 /**
- * Middleware para logging de actividades de autenticación
+ * Middleware para logging de actividades de autenticación (compatible con Passport)
  */
 const logActivity = (action) => {
   return (req, res, next) => {
     const timestamp = new Date().toISOString();
-    const userInfo = req.session.user
-      ? `Usuario: ${req.session.user.email} (${req.session.user.role})`
+    const userInfo = req.user
+      ? `Usuario: ${req.user.email} (${req.user.role})`
       : "Usuario no autenticado";
 
     console.log(`[${timestamp}] ${action} - ${userInfo} - IP: ${req.ip}`);
