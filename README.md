@@ -1,22 +1,40 @@
-# Sistema de Autenticación con Passport.js - CoderHouse Backend II
+# Sistema de Autenticación Completo - CoderHouse Backend II
 
 ## 📋 Descripción
 
-Sistema completo de autenticación refactorizado con Passport.js, bcrypt y autenticación OAuth. Implementa registro seguro, login local y con GitHub, roles de usuario y sesiones persistentes en MongoDB Atlas.
+Sistema completo de autenticación con **múltiples implementaciones**:
+
+- **Actividad 3.4**: Passport.js + GitHub OAuth + bcrypt
+- **🆕 Actividad 4.4**: JWT + API REST + Cookies firmadas
+
+Ambos sistemas coexisten en la misma aplicación para demostrar diferentes enfoques de autenticación en aplicaciones web modernas.
 
 ## 🚀 Características Implementadas
 
-- ✅ **Hasheo de Contraseñas** con bcrypt (salt rounds: 10)
-- ✅ **Passport.js** para autenticación local y OAuth
-- ✅ **Autenticación con GitHub** OAuth 2.0
-- ✅ **Sistema de Registro y Login** refactorizado
-- ✅ **Roles de Usuario**: Administrador y Usuario estándar
-- ✅ **Sesiones Seguras** almacenadas en MongoDB Atlas
-- ✅ **Interfaz Responsive** con Bootstrap 5
-- ✅ **Middleware de Protección** para rutas
-- ✅ **Validaciones Robustas** en frontend y backend
+### 🔐 Sistema JWT (Actividad 4.4) - ACTUAL
 
-## 🛠️ Tecnologías Utilizadas
+- ✅ **JSON Web Tokens** para autenticación stateless
+- ✅ **API REST completa** en `/api/users` (CRUD)
+- ✅ **Cookies firmadas** para almacenar JWT
+- ✅ **Base de datos:** `integrative_practice`
+- ✅ **Vistas específicas:** `/users/login` y `/users/current`
+- ✅ **Validaciones de acceso** con middleware JWT
+
+### 🎫 Sistema Passport.js (Actividad 3.4) - PREVIO
+
+- ✅ **Passport.js** con estrategias local y GitHub OAuth
+- ✅ **Autenticación con GitHub** OAuth 2.0
+- ✅ **Hasheo de Contraseñas** con bcrypt (salt rounds: 10)
+- ✅ **Sesiones** almacenadas en MongoDB Atlas
+- ✅ **Base de datos:** `backendII` (compatible)
+
+### 🌟 Características Comunes
+
+- ✅ **MongoDB Atlas** con múltiples bases de datos
+- ✅ **Roles de Usuario**: admin y user
+- ✅ **Interfaz Responsive** con Bootstrap 5
+- ✅ **Validaciones Robustas** en frontend y backend
+- ✅ **Middleware de Protección** para rutas## 🛠️ Tecnologías Utilizadas
 
 - **Node.js** - Entorno de ejecución
 - **Express.js** - Framework web

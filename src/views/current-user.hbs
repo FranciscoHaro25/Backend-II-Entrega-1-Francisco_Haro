@@ -1,0 +1,133 @@
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+      <div class="card shadow-lg">
+        <div class="card-body p-4">
+          <div class="text-center mb-4">
+            <h2 class="card-title text-success">
+              <i class="fas fa-user-check me-2"></i>
+              Usuario Actual
+            </h2>
+            <p class="text-muted">Datos básicos no sensibles</p>
+          </div>
+
+          <!-- Información del usuario -->
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <div class="info-card">
+                <div class="info-icon">
+                  <i class="fas fa-user"></i>
+                </div>
+                <div class="info-content">
+                  <h6 class="info-label">Nombre</h6>
+                  <p class="info-value">{{user.firstName}}</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <div class="info-card">
+                <div class="info-icon">
+                  <i class="fas fa-user-tag"></i>
+                </div>
+                <div class="info-content">
+                  <h6 class="info-label">Apellido</h6>
+                  <p class="info-value">{{user.lastName}}</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <div class="info-card">
+                <div class="info-icon">
+                  <i class="fas fa-envelope"></i>
+                </div>
+                <div class="info-content">
+                  <h6 class="info-label">Email</h6>
+                  <p class="info-value">{{user.email}}</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <div class="info-card">
+                <div class="info-icon">
+                  {{#if (eq user.role "admin")}}
+                    <i class="fas fa-crown text-warning"></i>
+                  {{else}}
+                    <i class="fas fa-user-circle"></i>
+                  {{/if}}
+                </div>
+                <div class="info-content">
+                  <h6 class="info-label">Rol</h6>
+                  <p class="info-value">
+                    {{user.role}}
+                    {{#if (eq user.role "admin")}}
+                      <span class="badge bg-warning text-dark ms-2">Admin</span>
+                    {{else}}
+                      <span class="badge bg-primary ms-2">Usuario</span>
+                    {{/if}}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-12 mb-3">
+              <div class="info-card">
+                <div class="info-icon">
+                  <i class="fas fa-id-card"></i>
+                </div>
+                <div class="info-content">
+                  <h6 class="info-label">ID de Usuario</h6>
+                  <p class="info-value"><code>{{user.id}}</code></p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Información técnica -->
+          <div class="alert alert-light mt-4" role="alert">
+            <h6><i class="fas fa-info-circle me-2"></i>Información de Sesión</h6>
+            <small class="text-muted">
+              • Autenticado con
+              <strong>JWT (JSON Web Token)</strong><br />
+              • Cookie firmada:
+              <code>currentUser</code><br />
+              • Base de datos:
+              <strong>integrative_practice</strong><br />
+              • Colección:
+              <strong>users</strong>
+            </small>
+          </div>
+
+          <!-- Acciones -->
+          <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+            <form action="/users/logout" method="POST" class="d-inline">
+              <button type="submit" class="btn btn-outline-danger">
+                <i class="fas fa-sign-out-alt me-2"></i>
+                Cerrar Sesión
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh; padding: 20px 0; } .card { border: none; border-radius:
+  15px; } .info-card { background: #f8f9fa; border-radius: 10px; padding: 15px;
+  display: flex; align-items: center; height: 100%; border-left: 4px solid
+  #667eea; } .info-icon { font-size: 24px; color: #667eea; margin-right: 15px;
+  width: 35px; text-align: center; } .info-content { flex: 1; } .info-label {
+  font-size: 12px; font-weight: 600; color: #6c757d; text-transform: uppercase;
+  letter-spacing: 0.5px; margin-bottom: 5px; } .info-value { font-size: 16px;
+  font-weight: 500; color: #2d3748; margin: 0; word-break: break-all; }
+  .btn-outline-danger { border: 2px solid #dc3545; color: #dc3545; font-weight:
+  600; border-radius: 8px; padding: 10px 20px; } .btn-outline-danger:hover {
+  background-color: #dc3545; border-color: #dc3545; transform: translateY(-1px);
+  } code { background-color: #e2e8f0; color: #2d3748; padding: 2px 6px;
+  border-radius: 4px; font-size: 12px; }
+</style>

@@ -1,0 +1,106 @@
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-md-6 col-lg-4">
+      <div class="card shadow-lg">
+        <div class="card-body p-4">
+          <div class="text-center mb-4">
+            <h2 class="card-title text-primary">
+              <i class="fas fa-sign-in-alt me-2"></i>
+              Login
+            </h2>
+            <p class="text-muted">Actividad Práctica 4.4 - JWT</p>
+          </div>
+
+          {{#if error}}
+            <div
+              class="alert alert-danger alert-dismissible fade show"
+              role="alert"
+            >
+              <i class="fas fa-exclamation-triangle me-2"></i>
+              {{error}}
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="alert"
+              ></button>
+            </div>
+          {{/if}}
+
+          <form action="/users/login" method="POST">
+            <div class="mb-3">
+              <label for="email" class="form-label">
+                <i class="fas fa-envelope me-1"></i>
+                Email
+              </label>
+              <input
+                type="email"
+                class="form-control"
+                id="email"
+                name="email"
+                placeholder="ejemplo@correo.com"
+                required
+                autocomplete="email"
+              />
+            </div>
+
+            <div class="mb-4">
+              <label for="password" class="form-label">
+                <i class="fas fa-lock me-1"></i>
+                Contraseña
+              </label>
+              <input
+                type="password"
+                class="form-control"
+                id="password"
+                name="password"
+                placeholder="Ingresa tu contraseña"
+                required
+                autocomplete="current-password"
+              />
+            </div>
+
+            <div class="d-grid">
+              <button type="submit" class="btn btn-primary">
+                <i class="fas fa-sign-in-alt me-2"></i>
+                Iniciar Sesión
+              </button>
+            </div>
+          </form>
+
+          <!-- Información del sistema -->
+          <div class="alert alert-light mt-4" role="alert">
+            <strong><i class="fas fa-info-circle me-2"></i>Sistema JWT:</strong><br
+            />
+            <small class="text-muted">
+              • Autenticación con JSON Web Tokens<br />
+              • Cookies firmadas para seguridad<br />
+              • MongoDB Atlas - integrative_practice
+            </small>
+          </div>
+
+          <!-- Credenciales de prueba -->
+          <div class="alert alert-info mt-3" role="alert">
+            <strong><i class="fas fa-user me-2"></i>Credenciales de prueba:</strong><br
+            />
+            <small>
+              <strong>Admin:</strong>
+              adminCoder@coder.com / admin123<br />
+            </small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh; display: flex; align-items: center; } .card { border: none;
+  border-radius: 15px; } .btn-primary { background: linear-gradient(45deg,
+  #667eea, #764ba2); border: none; border-radius: 8px; padding: 12px;
+  font-weight: 600; } .btn-primary:hover { background: linear-gradient(45deg,
+  #5a67d8, #6b46c1); transform: translateY(-1px); } .form-control {
+  border-radius: 8px; border: 2px solid #e2e8f0; padding: 12px; }
+  .form-control:focus { border-color: #667eea; box-shadow: 0 0 0 0.2rem
+  rgba(102, 126, 234, 0.25); }
+</style>

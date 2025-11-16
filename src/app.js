@@ -2,14 +2,18 @@ const express = require("express");
 const { engine } = require("express-handlebars");
 const session = require("express-session");
 const MongoStore = require("connect-mongo");
+const cookieParser = require("cookie-parser");
 const path = require("path");
 require("dotenv").config();
 
-// Importar configuración de base de datos y Passport
+// Importar configuración de base de datos
 const { connectDB } = require("./config/db");
-const passport = require("./config/passport");
 
-// Importar rutas
+// Importar rutas para actividad 4.4
+const apiUsersRoutes = require("./routes/api-users");
+const usersViewsRoutes = require("./routes/users-views");
+
+// Importar rutas anteriores (mantener compatibilidad)
 const authRoutes = require("./routes/auth");
 const productRoutes = require("./routes/products");
 const viewRoutes = require("./routes/views");
@@ -57,7 +61,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "../public")));
 
-// Configuración de sesiones con MongoDB Atlas
+// Configurar cookie-parser para cookies firmadas (JWT)
+app.use(cookieParser(process.env.COOKIE_SECRET));
+
+// Configuración de sesiones con MongoDB Atlas (para compatibilidad con Passport)
 app.use(
   session({
     secret: process.env.SESSION_SECRET,
@@ -65,7 +72,7 @@ app.use(
     saveUninitialized: false,
     store: MongoStore.create({
       mongoUrl: process.env.MONGO_URL,
-      dbName: "backendII",
+      dbName: process.env.MONGO_DB_NAME,
       collectionName: "sessions",
       ttl: 24 * 60 * 60, // 24 horas
       touchAfter: 24 * 3600, // No actualizar sesión más de una vez cada 24 horas
@@ -78,11 +85,12 @@ app.use(
   })
 );
 
-// Inicializar Passport después de las sesiones
+// Inicializar Passport (mantener compatibilidad con actividad 3.4)
+const passport = require("./config/passport");
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Middleware global para pasar datos de usuario a las vistas (compatible con Passport)
+// Middleware global para compatibilidad con Passport
 app.use((req, res, next) => {
   res.locals.user = req.user || null;
   res.locals.isAuthenticated = !!req.user;
@@ -90,7 +98,11 @@ app.use((req, res, next) => {
   next();
 });
 
-// Usar las rutas
+// Rutas para Actividad 4.4 - JWT
+app.use("/api/users", apiUsersRoutes);
+app.use("/users", usersViewsRoutes);
+
+// Rutas anteriores (mantener compatibilidad con actividades previas)
 app.use("/", viewRoutes);
 app.use("/auth", authRoutes);
 app.use("/products", productRoutes);
@@ -123,16 +135,24 @@ async function startServer() {
     // Iniciar servidor
     const server = app.listen(PORT, () => {
       console.log(`🚀 Servidor ejecutándose en http://localhost:${PORT}`);
-      console.log("📝 Rutas disponibles:");
-      console.log("   GET  /login - Página de login");
-      console.log("   GET  /register - Página de registro");
-      console.log(
-        "   GET  /products - Página de productos (requiere autenticación)"
-      );
-      console.log("   POST /auth/login - Procesar login");
-      console.log("   POST /auth/register - Procesar registro");
-      console.log("   POST /auth/logout - Cerrar sesión");
-      console.log("   GET  /auth/debug/users - Ver usuarios (desarrollo)");
+      console.log("📝 Rutas Actividad 4.4 (JWT):");
+      console.log("   GET  /users/login - Vista login JWT");
+      console.log("   POST /users/login - Procesar login JWT");
+      console.log("   GET  /users/current - Vista usuario actual (protegida)");
+      console.log("   POST /users/logout - Cerrar sesión JWT");
+      console.log("   ");
+      console.log("📡 API REST:");
+      console.log("   GET    /api/users - Obtener todos los usuarios");
+      console.log("   POST   /api/users - Crear usuario");
+      console.log("   GET    /api/users/:id - Obtener usuario por ID");
+      console.log("   PUT    /api/users/:id - Actualizar usuario");
+      console.log("   DELETE /api/users/:id - Eliminar usuario");
+      console.log("   POST   /api/users/login - Login con JWT");
+      console.log("   POST   /api/users/logout - Logout JWT");
+      console.log("   ");
+      console.log("🔗 Rutas anteriores (compatibilidad):");
+      console.log("   GET  /login - Login Passport");
+      console.log("   GET  /products - Productos");
     });
 
     // Manejo de cierre graceful
