@@ -121,3 +121,8 @@ Desktop.ini
 # Temporary files
 *.tmp
 *.temp
+
+# Test and verification files
+test-*.js
+check-*.js
+verify-*.js

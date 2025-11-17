@@ -16,8 +16,6 @@ router.get("/", logActivity("Acceso a productos"), (req, res) => {
     // Información adicional del usuario para el contexto (compatible con Passport)
     const user = req.user;
 
-    console.log(`📦 Usuario ${user.email} (${user.role}) accedió a productos`);
-
     res.render("products", {
       title: "Productos",
       user: user,
@@ -25,7 +23,6 @@ router.get("/", logActivity("Acceso a productos"), (req, res) => {
       welcomeMessage: `¡Bienvenido/a, ${user.firstName}!`,
     });
   } catch (error) {
-    console.error("Error al cargar productos:", error);
     res.status(500).render("error", {
       title: "Error del servidor",
       message: "No se pudieron cargar los productos. Intenta nuevamente.",

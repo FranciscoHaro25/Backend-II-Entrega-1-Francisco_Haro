@@ -67,7 +67,6 @@ router.post("/login", async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("Error en login:", error);
     res.status(500).json({
       status: "error",
       message: "Error interno del servidor",
@@ -108,7 +107,6 @@ router.get(
         },
       });
     } catch (error) {
-      console.error("Error en /current:", error);
       res.status(500).json({
         status: "error",
         message: "Error interno del servidor",
@@ -193,7 +191,6 @@ router.post("/register", async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("Error al registrar usuario:", error);
     res.status(500).json({
       status: "error",
       message: "Error interno del servidor",

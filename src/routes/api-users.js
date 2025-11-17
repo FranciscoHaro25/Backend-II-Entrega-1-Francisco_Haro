@@ -15,7 +15,6 @@ router.get("/", async (req, res) => {
       data: users,
     });
   } catch (error) {
-    console.error("Error al obtener usuarios:", error);
     res.status(500).json({
       status: "error",
       message: "Error interno del servidor",
@@ -40,7 +39,6 @@ router.get("/:id", async (req, res) => {
       data: user,
     });
   } catch (error) {
-    console.error("Error al obtener usuario:", error);
     res.status(500).json({
       status: "error",
       message: "Error interno del servidor",
@@ -96,7 +94,6 @@ router.post("/", async (req, res) => {
       data: userResponse,
     });
   } catch (error) {
-    console.error("Error al crear usuario:", error);
     res.status(500).json({
       status: "error",
       message: "Error interno del servidor",
@@ -134,7 +131,6 @@ router.put("/:id", async (req, res) => {
       data: updatedUser,
     });
   } catch (error) {
-    console.error("Error al actualizar usuario:", error);
     res.status(500).json({
       status: "error",
       message: "Error interno del servidor",
@@ -159,7 +155,6 @@ router.delete("/:id", async (req, res) => {
       message: "Usuario eliminado exitosamente",
     });
   } catch (error) {
-    console.error("Error al eliminar usuario:", error);
     res.status(500).json({
       status: "error",
       message: "Error interno del servidor",
@@ -235,7 +230,6 @@ router.post("/login", async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("Error en login:", error);
     res.status(500).json({
       status: "error",
       message: "Error interno del servidor",

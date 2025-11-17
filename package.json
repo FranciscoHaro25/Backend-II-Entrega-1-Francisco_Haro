@@ -1,7 +1,7 @@
 {
-  "name": "practica-login-sistema",
+  "name": "backendii-entrega-1",
   "version": "1.0.0",
-  "description": "Sistema de login con Express y Handlebars - Práctica CoderHouse",
+  "description": "Primera Entrega Backend II - Sistema de Autenticación JWT con GitHub OAuth",
   "main": "src/app.js",
   "scripts": {
     "start": "node src/app.js",
@@ -9,12 +9,13 @@
   },
   "keywords": [
     "express",
-    "handlebars",
-    "login",
+    "jwt",
     "authentication",
-    "sessions"
+    "mongodb",
+    "github-oauth",
+    "coderhouse"
   ],
-  "author": "Estudiante CoderHouse",
+  "author": "Francisco Haro",
   "license": "MIT",
   "dependencies": {
     "bcrypt": "^5.1.1",

@@ -115,7 +115,6 @@ userSchema.virtual("isLocked").get(function () {
   return !!(this.lockUntil && this.lockUntil > Date.now());
 });
 
-// Métodos de instancia
 userSchema.methods.isAdmin = function () {
   return this.role === "admin";
 };
@@ -134,17 +133,10 @@ userSchema.methods.updateLastLogin = async function () {
 //   next();
 // });
 
-// Middleware pre-save para logs
 userSchema.pre("save", function (next) {
-  if (this.isNew) {
-    console.log(
-      `📝 Creando nuevo usuario en MongoDB: ${this.email} (${this.role})`
-    );
-  }
   next();
 });
 
-// Métodos estáticos
 userSchema.statics.findByEmail = function (email) {
   return this.findOne({
     email: email.toLowerCase().trim(),
@@ -203,17 +195,11 @@ userSchema.statics.getStats = async function () {
       inactiveUsers: totalUsers - activeUsers,
     };
   } catch (error) {
-    console.error("❌ Error al obtener estadísticas de usuarios:", error);
     throw error;
   }
 };
 
-// COMENTADO: No crear usuarios por defecto hardcodeados
-// Todos los usuarios deben crearse manualmente o desde registro
 userSchema.statics.createDefaultAdmin = async function () {
-  console.log(
-    "ℹ️ Creación automática de admin deshabilitada - usar registro manual"
-  );
   return null;
 };
 

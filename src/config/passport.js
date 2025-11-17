@@ -6,10 +6,6 @@ const ExtractJwt = require("passport-jwt").ExtractJwt;
 const User = require("../models/User");
 const bcrypt = require("bcrypt");
 
-// Configuración de Passport.js
-// Implementamos estrategias Local y GitHub para manejar la autenticación
-
-// Manejo de sesiones con Passport
 passport.serializeUser((user, done) => {
   done(null, user._id);
 });
@@ -19,12 +15,10 @@ passport.deserializeUser(async (id, done) => {
     const user = await User.findById(id);
     done(null, user);
   } catch (error) {
-    console.error("Error al obtener usuario de sesión:", error);
     done(error, null);
   }
 });
 
-// Estrategia local para login
 passport.use(
   "local-login",
   new LocalStrategy(
@@ -35,7 +29,6 @@ passport.use(
     },
     async (req, email, password, done) => {
       try {
-        // Buscar usuario por email
         const user = await User.findOne({ email: email.toLowerCase() });
 
         if (!user) {
@@ -44,7 +37,6 @@ passport.use(
           });
         }
 
-        // Verificar contraseña usando bcrypt
         const isValidPassword = await bcrypt.compare(password, user.password);
 
         if (!isValidPassword) {
@@ -55,14 +47,12 @@ passport.use(
 
         return done(null, user);
       } catch (error) {
-        console.error("Error en login:", error);
         return done(error);
       }
     }
   )
 );
 
-// Estrategia local para registro
 passport.use(
   "local-register",
   new LocalStrategy(
@@ -73,7 +63,6 @@ passport.use(
     },
     async (req, email, password, done) => {
       try {
-        // Verificar si el usuario ya existe
         const existingUser = await User.findOne({ email: email.toLowerCase() });
 
         if (existingUser) {
@@ -82,21 +71,17 @@ passport.use(
           });
         }
 
-        // Extraer datos del formulario
         const { first_name, last_name, age } = req.body;
 
-        // Validar que todos los campos estén presentes
         if (!first_name || !last_name || !age) {
           return done(null, false, {
             message: "Todos los campos son obligatorios",
           });
         }
 
-        // Encriptar contraseña con bcrypt usando hashSync como especifica la consigna
         const saltRounds = 10;
         const hashedPassword = bcrypt.hashSync(password, saltRounds);
 
-        // Crear nuevo usuario
         const newUser = new User({
           first_name: first_name.trim(),
           last_name: last_name.trim(),
@@ -106,18 +91,15 @@ passport.use(
           role: "user",
         });
 
-        // Guardar usuario en la base de datos
         const savedUser = await newUser.save();
         return done(null, savedUser);
       } catch (error) {
-        console.error("Error al registrar usuario:", error);
         return done(error);
       }
     }
   )
 );
 
-// Estrategia de autenticación con GitHub
 passport.use(
   new GitHubStrategy(
     {
@@ -127,23 +109,19 @@ passport.use(
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
-        // Buscar si ya existe un usuario con este GitHub ID
         let user = await User.findOne({ githubId: profile.id });
 
         if (user) {
-          // Usuario existente, actualizar última conexión
           user.lastLogin = new Date();
           await user.save();
           return done(null, user);
         }
 
-        // Si tiene email, verificar si ya existe una cuenta con ese email
         if (profile.emails && profile.emails.length > 0) {
           const email = profile.emails[0].value;
           user = await User.findOne({ email: email.toLowerCase() });
 
           if (user) {
-            // Vincular cuenta existente con GitHub
             user.githubId = profile.id;
             user.githubUsername = profile.username;
             user.lastLogin = new Date();
@@ -152,55 +130,76 @@ passport.use(
           }
         }
 
-        // Crear nuevo usuario desde GitHub
-        const displayName = profile.displayName || profile.username;
-        const nameParts = displayName.split(" ");
-        const first_name = nameParts[0] || profile.username;
-        const last_name = nameParts.slice(1).join(" ") || "GitHub";
+        const githubData = profile._json || {};
+        let first_name, last_name;
 
-        // Determinar email
+        if (githubData.name && githubData.name.trim()) {
+          const nameParts = githubData.name.trim().split(" ");
+          first_name = nameParts[0];
+          last_name = nameParts.slice(1).join(" ") || githubData.login;
+        } else if (profile.displayName && profile.displayName.trim()) {
+          const nameParts = profile.displayName.trim().split(" ");
+          first_name = nameParts[0];
+          last_name = nameParts.slice(1).join(" ") || githubData.login;
+        } else if (profile.name && profile.name.trim()) {
+          const nameParts = profile.name.trim().split(" ");
+          first_name = nameParts[0];
+          last_name = nameParts.slice(1).join(" ") || githubData.login;
+        } else {
+          const username = githubData.login || profile.username;
+          const nameParts = username.split(/[0-9_-]/);
+          first_name = nameParts[0] || username;
+          last_name = nameParts[1] || "User";
+        }
+
         let email;
         if (profile.emails && profile.emails.length > 0) {
           email = profile.emails[0].value.toLowerCase();
+        } else if (githubData.email && githubData.email.trim()) {
+          email = githubData.email.toLowerCase();
         } else {
-          email = `${profile.username.toLowerCase()}@github.example.com`;
+          const username = githubData.login || profile.username;
+          email = `${username.toLowerCase()}@users.noreply.github.com`;
         }
 
-        // Todos los usuarios de GitHub son usuarios normales por defecto
-        // El rol se maneja desde la base de datos, no hardcodeado
-        const userRole = "user";
-
-        // Crear nuevo usuario
         const newUser = new User({
-          githubId: profile.id,
-          githubUsername: profile.username,
-          first_name: first_name,
-          last_name: last_name,
-          email: email,
-          age: 25, // Edad por defecto
-          role: userRole,
-          password: null, // No necesita password para OAuth
+          githubId: githubData.id || profile.id,
+          githubUsername: githubData.login || profile.username,
+          first_name,
+          last_name,
+          email,
+          age: 25,
+          role: "user",
+          password: "oauth_github",
           isActive: true,
           lastLogin: new Date(),
+          githubProfile: {
+            avatar_url: githubData.avatar_url,
+            html_url: githubData.html_url,
+            company: githubData.company,
+            location: githubData.location,
+            bio: githubData.bio,
+            public_repos: githubData.public_repos,
+            followers: githubData.followers,
+            following: githubData.following,
+            created_at: githubData.created_at,
+          },
         });
 
         const savedUser = await newUser.save();
         return done(null, savedUser);
       } catch (error) {
-        console.error("Error en autenticación GitHub:", error);
         return done(error, null);
       }
     }
   )
 );
 
-// Estrategia JWT para autenticación basada en tokens
 passport.use(
   "jwt",
   new JwtStrategy(
     {
       jwtFromRequest: ExtractJwt.fromExtractors([
-        // Extraer JWT desde cookies firmadas
         (req) => {
           let token = null;
           if (req && req.signedCookies) {
@@ -208,14 +207,12 @@ passport.use(
           }
           return token;
         },
-        // También desde el header Authorization como fallback
         ExtractJwt.fromAuthHeaderAsBearerToken(),
       ]),
       secretOrKey: process.env.JWT_SECRET,
     },
     async (jwtPayload, done) => {
       try {
-        // Buscar usuario por ID del payload JWT
         const user = await User.findById(jwtPayload.id).select("-password");
 
         if (user) {
@@ -224,7 +221,6 @@ passport.use(
           return done(null, false);
         }
       } catch (error) {
-        console.error("Error en estrategia JWT:", error);
         return done(error, false);
       }
     }

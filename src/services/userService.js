@@ -69,9 +69,6 @@ class UserService {
       });
 
       const savedUser = await user.save();
-      console.log(
-        `✅ Usuario creado en MongoDB Atlas: ${savedUser.email} (${savedUser.role})`
-      );
 
       // Retornar usuario sin password
       return {
@@ -127,7 +124,6 @@ class UserService {
     try {
       return await User.findOne({ githubId });
     } catch (error) {
-      console.error("Error buscando usuario por GitHub ID:", error);
       throw error;
     }
   }
@@ -152,11 +148,6 @@ class UserService {
    * Solo se ejecuta si no existe ningún admin y hay variables configuradas
    */
   async createAdminUserFromEnv() {
-    // COMENTADO: No crear usuarios automáticamente
-    // Todos los usuarios deben venir desde la base de datos
-    console.log(
-      "ℹ️ Creación automática de admin deshabilitada - usar base de datos"
-    );
     return null;
   }
 

@@ -12,7 +12,6 @@ router.post(
   (req, res, next) => {
     passport.authenticate("local-register", (err, user, info) => {
       if (err) {
-        console.error("Error en autenticación de registro:", err);
         return res.render("register", {
           title: "Registro",
           error: "Error interno del servidor",
@@ -37,16 +36,12 @@ router.post(
       // Login automático después del registro exitoso
       req.logIn(user, (err) => {
         if (err) {
-          console.error("Error creando sesión después del registro:", err);
           return res.render("register", {
             title: "Registro",
             error: "Usuario creado pero error al iniciar sesión",
           });
         }
 
-        console.log(
-          `✅ Usuario registrado y logueado: ${user.email} (${user.role})`
-        );
         res.redirect("/products");
       });
     })(req, res, next);
@@ -61,7 +56,6 @@ router.post(
   (req, res, next) => {
     passport.authenticate("local-login", (err, user, info) => {
       if (err) {
-        console.error("Error en autenticación de login:", err);
         return res.render("login", {
           title: "Iniciar Sesión",
           error: "Error interno del servidor",
@@ -80,7 +74,6 @@ router.post(
       // Iniciar sesión con Passport
       req.logIn(user, (err) => {
         if (err) {
-          console.error("Error creando sesión:", err);
           return res.render("login", {
             title: "Iniciar Sesión",
             error: "Error al crear la sesión",
@@ -88,7 +81,6 @@ router.post(
           });
         }
 
-        console.log(`✅ Login exitoso: ${user.email} (${user.role})`);
         res.redirect("/products");
       });
     })(req, res, next);
@@ -101,17 +93,14 @@ router.post("/logout", logActivity("Logout"), (req, res) => {
 
   req.logout((err) => {
     if (err) {
-      console.error("Error cerrando sesión con Passport:", err);
       return res.redirect("/products");
     }
 
     req.session.destroy((err) => {
       if (err) {
-        console.error("Error destruyendo sesión:", err);
         return res.redirect("/products");
       }
 
-      console.log(`👋 Sesión cerrada: ${userEmail}`);
       res.redirect("/login?message=Sesión cerrada correctamente");
     });
   });
@@ -123,7 +112,6 @@ router.get("/logout", logActivity("Logout"), (req, res) => {
 
   req.session.destroy((err) => {
     if (err) {
-      console.error("Error al cerrar sesión:", err);
       return res.redirect("/products");
     }
 
@@ -170,7 +158,6 @@ if (process.env.NODE_ENV !== "production") {
 
 // GET /auth/github - Iniciar autenticación con GitHub
 router.get("/github", logActivity("Inicio OAuth GitHub"), (req, res, next) => {
-  console.log("🚀 Iniciando autenticación con GitHub...");
   passport.authenticate("github", {
     scope: ["user:email"],
   })(req, res, next);
@@ -190,14 +177,12 @@ router.get(
       },
       (err, user, info) => {
         if (err) {
-          console.error("❌ Error en callback de GitHub:", err);
           return res.redirect(
             "/login?error=Error interno del servidor durante la autenticación con GitHub"
           );
         }
 
         if (!user) {
-          console.log("❌ Autenticación con GitHub fallida:", info);
           return res.redirect(
             "/login?error=No se pudo completar la autenticación con GitHub"
           );
@@ -206,21 +191,12 @@ router.get(
         // Iniciar sesión manualmente
         req.logIn(user, (err) => {
           if (err) {
-            console.error(
-              "❌ Error al crear sesión después de GitHub OAuth:",
-              err
-            );
             return res.redirect(
               "/login?error=Error al iniciar sesión después de autenticación con GitHub"
             );
           }
 
-          console.log(
-            `✅ Login exitoso con GitHub: ${user.email} (${user.role}) - ID: ${user._id}`
-          );
-          res.redirect(
-            "/products?message=¡Bienvenido! Has iniciado sesión con GitHub exitosamente"
-          );
+          res.redirect("/products");
         });
       }
     )(req, res, next);
