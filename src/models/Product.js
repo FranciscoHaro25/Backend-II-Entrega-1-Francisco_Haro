@@ -82,11 +82,12 @@ const productSchema = new mongoose.Schema(
 );
 
 // Índices para optimizar consultas
-productSchema.index({ code: 1 }, { unique: true });
+// Nota: El índice de 'code' ya está definido como unique en el schema
 productSchema.index({ category: 1 });
 productSchema.index({ status: 1 });
 productSchema.index({ price: 1 });
 productSchema.index({ createdAt: -1 });
+productSchema.index({ owner: 1 });
 
 // Método estático para obtener productos activos
 productSchema.statics.getActiveProducts = function () {

@@ -9,8 +9,10 @@ class DatabaseConnection {
 
   async connectDB() {
     try {
+      console.log("Iniciando conexión a MongoDB Atlas...");
+
       const mongoOptions = {
-        serverSelectionTimeoutMS: 10000,
+        serverSelectionTimeoutMS: 30000,
         socketTimeoutMS: 45000,
         maxPoolSize: 10,
         minPoolSize: 2,
@@ -23,11 +25,13 @@ class DatabaseConnection {
         mongoOptions
       );
       this.isConnected = true;
+      console.log("✅ Conectado a MongoDB Atlas exitosamente");
 
       this.setupConnectionEvents();
       return this.connection;
     } catch (error) {
       this.isConnected = false;
+      console.error("❌ Error conectando a MongoDB:", error.message);
       throw error;
     }
   }

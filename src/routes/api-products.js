@@ -1,6 +1,10 @@
 const express = require("express");
 const router = express.Router();
-const { isAdmin, isAdminOrUser } = require("../middleware/authorization");
+const {
+  isAdmin,
+  canManageProducts,
+  isAdminOrPremium,
+} = require("../middleware/authorization");
 const productRepository = require("../repositories/product.repository");
 const ProductDTO = require("../dto/product.dto");
 
@@ -50,10 +54,16 @@ router.get("/:pid", async (req, res) => {
   }
 });
 
-// POST /api/products - Crear producto (solo admin)
-router.post("/", isAdmin, async (req, res) => {
+// POST /api/products - Crear producto (admin y premium)
+// Premium solo puede crear productos que le pertenecen
+router.post("/", isAdminOrPremium, async (req, res) => {
   try {
-    const product = await productRepository.createProduct(req.body);
+    const productData = { ...req.body };
+    // Si es premium, asignar el owner del producto
+    if (req.user.role === "premium") {
+      productData.owner = req.user._id;
+    }
+    const product = await productRepository.createProduct(productData);
     res
       .status(201)
       .json({ status: "success", payload: ProductDTO.fromProduct(product) });
@@ -62,22 +72,61 @@ router.post("/", isAdmin, async (req, res) => {
   }
 });
 
-// PUT /api/products/:pid - Actualizar producto (solo admin)
-router.put("/:pid", isAdmin, async (req, res) => {
+// PUT /api/products/:pid - Actualizar producto (admin o premium dueño)
+router.put("/:pid", isAdminOrPremium, async (req, res) => {
   try {
-    const product = await productRepository.updateProduct(
+    const product = await productRepository.getProductById(req.params.pid);
+    if (!product) {
+      return res
+        .status(404)
+        .json({ status: "error", message: "Producto no encontrado" });
+    }
+
+    // Premium solo puede editar sus propios productos
+    if (
+      req.user.role === "premium" &&
+      product.owner?.toString() !== req.user._id.toString()
+    ) {
+      return res.status(403).json({
+        status: "error",
+        message: "No puedes editar productos que no te pertenecen",
+      });
+    }
+
+    const updatedProduct = await productRepository.updateProduct(
       req.params.pid,
       req.body
     );
-    res.json({ status: "success", payload: ProductDTO.fromProduct(product) });
+    res.json({
+      status: "success",
+      payload: ProductDTO.fromProduct(updatedProduct),
+    });
   } catch (error) {
     res.status(400).json({ status: "error", message: error.message });
   }
 });
 
-// DELETE /api/products/:pid - Eliminar producto (solo admin)
-router.delete("/:pid", isAdmin, async (req, res) => {
+// DELETE /api/products/:pid - Eliminar producto (admin o premium dueño)
+router.delete("/:pid", isAdminOrPremium, async (req, res) => {
   try {
+    const product = await productRepository.getProductById(req.params.pid);
+    if (!product) {
+      return res
+        .status(404)
+        .json({ status: "error", message: "Producto no encontrado" });
+    }
+
+    // Premium solo puede eliminar sus propios productos
+    if (
+      req.user.role === "premium" &&
+      product.owner?.toString() !== req.user._id.toString()
+    ) {
+      return res.status(403).json({
+        status: "error",
+        message: "No puedes eliminar productos que no te pertenecen",
+      });
+    }
+
     await productRepository.deleteProduct(req.params.pid);
     res.json({ status: "success", message: "Producto eliminado" });
   } catch (error) {

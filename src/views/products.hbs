@@ -8,254 +8,352 @@
             </div>
         {{/if}}
         
-        <!-- Mensaje de bienvenida personalizado -->
+        <div id="alertContainer"></div>
+        
         <div class="card mb-4">
-            <div class="card-body bg-primary text-white text-center">
-                <h1 class="card-title">
-                    <i class="fas fa-rocket me-2"></i>
+            <div class="card-body bg-primary text-white text-center py-4">
+                <h2 class="card-title mb-2">
                     ¡Bienvenido/a, {{user.first_name}} {{user.last_name}}!
-                </h1>
+                </h2>
                 <p class="card-text mb-0">
                     {{#if isAdmin}}
-                        <i class="fas fa-crown me-1"></i>
-                        Acceso de <strong>Administrador</strong> - Tienes permisos completos
+                        <span class="badge bg-warning text-dark me-2">Administrador</span>
+                        Tienes acceso completo al sistema
+                    {{else if isPremium}}
+                        <span class="badge bg-info me-2">Premium</span>
+                        Puedes crear y gestionar tus productos
                     {{else}}
-                        <i class="fas fa-user me-1"></i>
-                        Usuario estándar - ¡Explora nuestros productos!
+                        <span class="badge bg-light text-dark me-2">Usuario</span>
+                        Explora y compra nuestros productos
                     {{/if}}
                 </p>
-                <small class="opacity-75">
-                    <i class="fas fa-envelope me-1"></i>
-                    {{user.email}} | 
-                    <i class="fas fa-calendar-alt me-1"></i>
-                    {{user.age}} años
-                </small>
             </div>
         </div>
     </div>
 </div>
 
 <div class="row">
-    <!-- Panel de información del usuario -->
-    <div class="col-lg-4 mb-4">
+    <div class="col-lg-3 mb-4">
         <div class="card h-100">
             <div class="card-header bg-light">
                 <h5 class="card-title mb-0">
-                    <i class="fas fa-user-circle me-2"></i>
-                    Información Personal
+                    <i class="fas fa-user-circle me-2"></i>Mi Cuenta
                 </h5>
             </div>
             <div class="card-body">
-                <div class="mb-3">
-                    <strong><i class="fas fa-signature me-2"></i>Nombre completo:</strong><br>
-                    {{user.first_name}} {{user.last_name}}
-                </div>
-                <div class="mb-3">
-                    <strong><i class="fas fa-envelope me-2"></i>Correo:</strong><br>
-                    {{user.email}}
-                </div>
-                <div class="mb-3">
-                    <strong><i class="fas fa-birthday-cake me-2"></i>Edad:</strong><br>
-                    {{user.age}} años
-                </div>
-                <div class="mb-3">
-                    <strong><i class="fas fa-shield-alt me-2"></i>Rol:</strong><br>
-                    <span class="badge {{#if isAdmin}}bg-warning text-dark{{else}}bg-info{{/if}}">
-                        {{#if isAdmin}}
-                            <i class="fas fa-crown me-1"></i>Administrador
-                        {{else}}
-                            <i class="fas fa-user me-1"></i>Usuario
-                        {{/if}}
-                    </span>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Catálogo de productos -->
-    <div class="col-lg-8">
-        <div class="card">
-            <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                <h5 class="card-title mb-0">
-                    <i class="fas fa-box me-2"></i>
-                    Catálogo de Productos
-                </h5>
-                {{#if isAdmin}}
-                    <span class="badge bg-warning text-dark">
-                        <i class="fas fa-cog me-1"></i>Panel Admin
-                    </span>
-                {{/if}}
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <!-- Producto 1 -->
-                    <div class="col-md-6 col-lg-4 mb-4">
-                        <div class="card border-0 shadow-sm h-100">
-                            <div class="card-body text-center">
-                                <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
-                                    <i class="fas fa-laptop fa-lg"></i>
-                                </div>
-                                <h6 class="card-title">Laptop Pro</h6>
-                                <p class="card-text text-muted small">Laptop de alto rendimiento para desarrolladores</p>
-                                <p class="text-primary fw-bold">$1,299.99</p>
-                                {{#if isAdmin}}
-                                    <button class="btn btn-sm btn-outline-warning">
-                                        <i class="fas fa-edit me-1"></i>Editar
-                                    </button>
-                                {{else}}
-                                    <button class="btn btn-sm btn-outline-primary">
-                                        <i class="fas fa-shopping-cart me-1"></i>Agregar
-                                    </button>
-                                {{/if}}
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Producto 2 -->
-                    <div class="col-md-6 col-lg-4 mb-4">
-                        <div class="card border-0 shadow-sm h-100">
-                            <div class="card-body text-center">
-                                <div class="bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
-                                    <i class="fas fa-mobile-alt fa-lg"></i>
-                                </div>
-                                <h6 class="card-title">Smartphone X</h6>
-                                <p class="card-text text-muted small">Teléfono inteligente con cámara avanzada</p>
-                                <p class="text-primary fw-bold">$899.99</p>
-                                {{#if isAdmin}}
-                                    <button class="btn btn-sm btn-outline-warning">
-                                        <i class="fas fa-edit me-1"></i>Editar
-                                    </button>
-                                {{else}}
-                                    <button class="btn btn-sm btn-outline-primary">
-                                        <i class="fas fa-shopping-cart me-1"></i>Agregar
-                                    </button>
-                                {{/if}}
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Producto 3 -->
-                    <div class="col-md-6 col-lg-4 mb-4">
-                        <div class="card border-0 shadow-sm h-100">
-                            <div class="card-body text-center">
-                                <div class="bg-info text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
-                                    <i class="fas fa-headphones fa-lg"></i>
-                                </div>
-                                <h6 class="card-title">Auriculares Bluetooth</h6>
-                                <p class="card-text text-muted small">Auriculares inalámbricos con cancelación de ruido</p>
-                                <p class="text-primary fw-bold">$199.99</p>
-                                {{#if isAdmin}}
-                                    <button class="btn btn-sm btn-outline-warning">
-                                        <i class="fas fa-edit me-1"></i>Editar
-                                    </button>
-                                {{else}}
-                                    <button class="btn btn-sm btn-outline-primary">
-                                        <i class="fas fa-shopping-cart me-1"></i>Agregar
-                                    </button>
-                                {{/if}}
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Producto 4 -->
-                    <div class="col-md-6 col-lg-4 mb-4">
-                        <div class="card border-0 shadow-sm h-100">
-                            <div class="card-body text-center">
-                                <div class="bg-warning text-dark rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
-                                    <i class="fas fa-tablet-alt fa-lg"></i>
-                                </div>
-                                <h6 class="card-title">Tablet Design</h6>
-                                <p class="card-text text-muted small">Tablet para diseño y creatividad</p>
-                                <p class="text-primary fw-bold">$599.99</p>
-                                {{#if isAdmin}}
-                                    <button class="btn btn-sm btn-outline-warning">
-                                        <i class="fas fa-edit me-1"></i>Editar
-                                    </button>
-                                {{else}}
-                                    <button class="btn btn-sm btn-outline-primary">
-                                        <i class="fas fa-shopping-cart me-1"></i>Agregar
-                                    </button>
-                                {{/if}}
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Producto 5 -->
-                    <div class="col-md-6 col-lg-4 mb-4">
-                        <div class="card border-0 shadow-sm h-100">
-                            <div class="card-body text-center">
-                                <div class="bg-danger text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
-                                    <i class="fas fa-gamepad fa-lg"></i>
-                                </div>
-                                <h6 class="card-title">Consola Gaming</h6>
-                                <p class="card-text text-muted small">Consola de videojuegos de última generación</p>
-                                <p class="text-primary fw-bold">$499.99</p>
-                                {{#if isAdmin}}
-                                    <button class="btn btn-sm btn-outline-warning">
-                                        <i class="fas fa-edit me-1"></i>Editar
-                                    </button>
-                                {{else}}
-                                    <button class="btn btn-sm btn-outline-primary">
-                                        <i class="fas fa-shopping-cart me-1"></i>Agregar
-                                    </button>
-                                {{/if}}
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Producto 6 -->
-                    <div class="col-md-6 col-lg-4 mb-4">
-                        <div class="card border-0 shadow-sm h-100">
-                            <div class="card-body text-center">
-                                <div class="bg-secondary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
-                                    <i class="fas fa-camera fa-lg"></i>
-                                </div>
-                                <h6 class="card-title">Cámara Digital</h6>
-                                <p class="card-text text-muted small">Cámara profesional para fotografía</p>
-                                <p class="text-primary fw-bold">$799.99</p>
-                                {{#if isAdmin}}
-                                    <button class="btn btn-sm btn-outline-warning">
-                                        <i class="fas fa-edit me-1"></i>Editar
-                                    </button>
-                                {{else}}
-                                    <button class="btn btn-sm btn-outline-primary">
-                                        <i class="fas fa-shopping-cart me-1"></i>Agregar
-                                    </button>
-                                {{/if}}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {{#if isAdmin}}
-                    <div class="alert alert-warning mt-4" role="alert">
-                        <i class="fas fa-info-circle me-2"></i>
-                        <strong>Panel de Administrador:</strong> Como administrador, puedes ver y editar todos los productos del catálogo.
-                    </div>
-                {{/if}}
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Información adicional para el usuario -->
-<div class="row mt-4">
-    <div class="col-12">
-        <div class="card bg-light">
-            <div class="card-body text-center">
-                <h6 class="card-title">
-                    <i class="fas fa-info-circle me-2"></i>
-                    Información de la Sesión
-                </h6>
-                <p class="card-text small text-muted mb-0">
-                    Sesión iniciada correctamente. 
+                <p class="mb-2"><strong>Nombre:</strong><br>{{user.first_name}} {{user.last_name}}</p>
+                <p class="mb-2"><strong>Email:</strong><br>{{user.email}}</p>
+                <p class="mb-2"><strong>Edad:</strong> {{user.age}} años</p>
+                <p class="mb-0">
+                    <strong>Rol:</strong><br>
                     {{#if isAdmin}}
-                        Tienes permisos de administrador en el sistema.
+                        <span class="badge bg-warning text-dark">Administrador</span>
+                    {{else if isPremium}}
+                        <span class="badge bg-info">Premium</span>
                     {{else}}
-                        Estás navegando como usuario estándar.
+                        <span class="badge bg-secondary">Usuario</span>
                     {{/if}}
                 </p>
             </div>
+            <div class="card-footer bg-light">
+                <form action="/auth/logout" method="POST">
+                    <button type="submit" class="btn btn-outline-danger btn-sm w-100">
+                        <i class="fas fa-sign-out-alt me-1"></i>Cerrar Sesión
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-9">
+        <div class="card">
+            <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-box me-2"></i>Catálogo de Productos
+                </h5>
+                {{#if isAdmin}}
+                    <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#productModal" onclick="openCreateModal()">
+                        <i class="fas fa-plus me-1"></i>Nuevo Producto
+                    </button>
+                {{else if isPremium}}
+                    <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#productModal" onclick="openCreateModal()">
+                        <i class="fas fa-plus me-1"></i>Crear Producto
+                    </button>
+                {{/if}}
+            </div>
+            <div class="card-body">
+                <div class="row" id="productsContainer">
+                    {{#each products}}
+                    <div class="col-md-6 col-lg-4 mb-4" id="product-{{this._id}}">
+                        <div class="card h-100 shadow-sm">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <h6 class="card-title mb-0">{{this.title}}</h6>
+                                    <span class="badge bg-secondary">{{this.category}}</span>
+                                </div>
+                                <p class="card-text text-muted small">{{this.description}}</p>
+                                <p class="card-text"><small class="text-muted">Código: {{this.code}}</small></p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="text-primary fw-bold">${{this.price}}</span>
+                                    <small class="text-muted">Stock: {{this.stock}}</small>
+                                </div>
+                            </div>
+                            <div class="card-footer bg-white border-top-0">
+                                {{#if ../isAdmin}}
+                                    <div class="btn-group w-100" role="group">
+                                        <button class="btn btn-sm btn-outline-primary" onclick="openEditModal('{{this._id}}', '{{this.title}}', '{{this.description}}', '{{this.code}}', '{{this.price}}', '{{this.stock}}', '{{this.category}}')">
+                                            <i class="fas fa-edit me-1"></i>Editar
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger" onclick="deleteProduct('{{this._id}}', '{{this.title}}')">
+                                            <i class="fas fa-trash me-1"></i>Eliminar
+                                        </button>
+                                    </div>
+                                {{else if ../isPremium}}
+                                    <div class="btn-group w-100" role="group">
+                                        <button class="btn btn-sm btn-outline-primary" onclick="openEditModal('{{this._id}}', '{{this.title}}', '{{this.description}}', '{{this.code}}', '{{this.price}}', '{{this.stock}}', '{{this.category}}')">
+                                            <i class="fas fa-edit me-1"></i>Editar
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger" onclick="deleteProduct('{{this._id}}', '{{this.title}}')">
+                                            <i class="fas fa-trash me-1"></i>Eliminar
+                                        </button>
+                                    </div>
+                                {{else}}
+                                    <button class="btn btn-sm btn-primary w-100" onclick="addToCart('{{this._id}}', '{{this.title}}')">
+                                        <i class="fas fa-cart-plus me-1"></i>Agregar al Carrito
+                                    </button>
+                                {{/if}}
+                            </div>
+                        </div>
+                    </div>
+                    {{else}}
+                    <div class="col-12">
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            No hay productos disponibles en este momento.
+                        </div>
+                    </div>
+                    {{/each}}
+                </div>
+            </div>
         </div>
     </div>
 </div>
+
+<!-- Modal para Crear/Editar Producto -->
+<div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="productModalLabel">Nuevo Producto</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="productForm">
+                    <input type="hidden" id="productId" name="productId">
+                    <div class="mb-3">
+                        <label for="title" class="form-label">Título *</label>
+                        <input type="text" class="form-control" id="title" name="title" required minlength="3" maxlength="100">
+                    </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Descripción *</label>
+                        <textarea class="form-control" id="description" name="description" rows="3" required minlength="10" maxlength="500"></textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="code" class="form-label">Código *</label>
+                            <input type="text" class="form-control" id="code" name="code" required maxlength="20">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="category" class="form-label">Categoría *</label>
+                            <select class="form-select" id="category" name="category" required>
+                                <option value="">Seleccionar...</option>
+                                <option value="electronics">Electrónica</option>
+                                <option value="peripherals">Periféricos</option>
+                                <option value="audio">Audio</option>
+                                <option value="storage">Almacenamiento</option>
+                                <option value="furniture">Muebles</option>
+                                <option value="other">Otros</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="price" class="form-label">Precio *</label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" class="form-control" id="price" name="price" step="0.01" min="0.01" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="stock" class="form-label">Stock *</label>
+                            <input type="number" class="form-control" id="stock" name="stock" min="0" required>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="saveProduct()">
+                    <i class="fas fa-save me-1"></i>Guardar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Confirmación de Eliminación -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title"><i class="fas fa-exclamation-triangle me-2"></i>Confirmar Eliminación</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Estás seguro de que deseas eliminar el producto <strong id="deleteProductName"></strong>?</p>
+                <p class="text-muted small">Esta acción no se puede deshacer.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+                    <i class="fas fa-trash me-1"></i>Eliminar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentProductId = null;
+    const userCartId = '{{user.cart}}';
+    
+    function showAlert(message, type) {
+        type = type || 'success';
+        const icon = type === 'success' ? 'check-circle' : 'exclamation-circle';
+        const alertHtml = '<div class="alert alert-' + type + ' alert-dismissible fade show" role="alert">' +
+            '<i class="fas fa-' + icon + ' me-2"></i>' + message +
+            '<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>';
+        document.getElementById('alertContainer').innerHTML = alertHtml;
+        setTimeout(function() {
+            const alert = document.querySelector('#alertContainer .alert');
+            if (alert) alert.remove();
+        }, 5000);
+    }
+    
+    function openCreateModal() {
+        document.getElementById('productModalLabel').textContent = 'Nuevo Producto';
+        document.getElementById('productForm').reset();
+        document.getElementById('productId').value = '';
+        document.getElementById('code').disabled = false;
+    }
+    
+    function openEditModal(id, title, description, code, price, stock, category) {
+        document.getElementById('productModalLabel').textContent = 'Editar Producto';
+        document.getElementById('productId').value = id;
+        document.getElementById('title').value = title;
+        document.getElementById('description').value = description;
+        document.getElementById('code').value = code;
+        document.getElementById('code').disabled = true;
+        document.getElementById('price').value = price;
+        document.getElementById('stock').value = stock;
+        document.getElementById('category').value = category;
+        
+        var modal = new bootstrap.Modal(document.getElementById('productModal'));
+        modal.show();
+    }
+    
+    function saveProduct() {
+        var form = document.getElementById('productForm');
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            return;
+        }
+        
+        var productId = document.getElementById('productId').value;
+        var productData = {
+            title: document.getElementById('title').value,
+            description: document.getElementById('description').value,
+            code: document.getElementById('code').value,
+            price: parseFloat(document.getElementById('price').value),
+            stock: parseInt(document.getElementById('stock').value),
+            category: document.getElementById('category').value
+        };
+        
+        var url = productId ? '/api/products/' + productId : '/api/products';
+        var method = productId ? 'PUT' : 'POST';
+        
+        fetch(url, {
+            method: method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(productData)
+        })
+        .then(function(response) { return response.json(); })
+        .then(function(data) {
+            if (data.status === 'success') {
+                bootstrap.Modal.getInstance(document.getElementById('productModal')).hide();
+                showAlert(productId ? 'Producto actualizado correctamente' : 'Producto creado correctamente');
+                setTimeout(function() { location.reload(); }, 1500);
+            } else {
+                showAlert(data.message || 'Error al guardar el producto', 'danger');
+            }
+        })
+        .catch(function(error) {
+            showAlert('Error de conexión: ' + error.message, 'danger');
+        });
+    }
+    
+    function deleteProduct(id, name) {
+        currentProductId = id;
+        document.getElementById('deleteProductName').textContent = name;
+        var modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+        modal.show();
+    }
+    
+    document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
+        if (!currentProductId) return;
+        
+        fetch('/api/products/' + currentProductId, {
+            method: 'DELETE'
+        })
+        .then(function(response) { return response.json(); })
+        .then(function(data) {
+            if (data.status === 'success') {
+                bootstrap.Modal.getInstance(document.getElementById('deleteModal')).hide();
+                var productEl = document.getElementById('product-' + currentProductId);
+                if (productEl) productEl.remove();
+                showAlert('Producto eliminado correctamente');
+            } else {
+                showAlert(data.message || 'Error al eliminar el producto', 'danger');
+            }
+        })
+        .catch(function(error) {
+            showAlert('Error de conexión: ' + error.message, 'danger');
+        });
+        
+        currentProductId = null;
+    });
+    
+    function addToCart(productId, productName) {
+        if (!userCartId) {
+            showAlert('No tienes un carrito asignado', 'danger');
+            return;
+        }
+        
+        fetch('/api/carts/' + userCartId + '/products/' + productId, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ quantity: 1 })
+        })
+        .then(function(response) { return response.json(); })
+        .then(function(data) {
+            if (data.status === 'success') {
+                showAlert('"' + productName + '" agregado al carrito');
+            } else {
+                showAlert(data.message || 'Error al agregar al carrito', 'danger');
+            }
+        })
+        .catch(function(error) {
+            showAlert('Error de conexión: ' + error.message, 'danger');
+        });
+    }
+</script>

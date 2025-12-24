@@ -24,7 +24,8 @@ class ProductDAO {
       query = query.sort(sort);
     }
 
-    return await query.skip(skip).limit(limit);
+    // Usar .lean() para obtener objetos planos en lugar de documentos Mongoose
+    return await query.skip(skip).limit(limit).lean();
   }
 
   async update(id, data) {

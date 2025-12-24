@@ -118,16 +118,6 @@
           </a>
         </div>
 
-        <!-- Información del sistema -->
-        <div class="alert alert-light mt-4" role="alert">
-          <strong><i class="fas fa-info-circle me-2"></i>Sistema de
-            autenticación:</strong><br />
-          <small class="text-muted">
-            • Autenticación local con bcrypt y Passport.js<br />
-            • OAuth con GitHub disponible<br />
-            • Sesiones persistentes en MongoDB Atlas
-          </small>
-        </div>
       </div>
     </div>
   </div>
@@ -140,10 +130,5 @@
   passwordInput.type = 'text'; eyeIcon.classList.remove('fa-eye');
   eyeIcon.classList.add('fa-eye-slash'); } else { passwordInput.type =
   'password'; eyeIcon.classList.remove('fa-eye-slash');
-  eyeIcon.classList.add('fa-eye'); } } // Validación del formulario (function()
-  { 'use strict'; const forms = document.querySelectorAll('form');
-  Array.from(forms).forEach(function(form) { form.addEventListener('submit',
-  function(event) { if (!form.checkValidity()) { event.preventDefault();
-  event.stopPropagation(); } form.classList.add('was-validated'); }, false); });
-  })();
+  eyeIcon.classList.add('fa-eye'); } }
 </script>

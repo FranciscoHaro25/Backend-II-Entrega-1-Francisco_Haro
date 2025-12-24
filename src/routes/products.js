@@ -5,21 +5,27 @@ const {
   addUserToViews,
   logActivity,
 } = require("../middleware/auth");
+const productRepository = require("../repositories/product.repository");
 
 // Aplicar middleware de autenticación a todas las rutas de productos
 router.use(requireAuth);
 router.use(addUserToViews);
 
 // GET /products - Página principal de productos (requiere autenticación)
-router.get("/", logActivity("Acceso a productos"), (req, res) => {
+router.get("/", logActivity("Acceso a productos"), async (req, res) => {
   try {
     // Convertir usuario a objeto plano para las vistas
     const user = req.user.toObject ? req.user.toObject() : req.user;
 
+    // Obtener productos de la base de datos
+    const products = await productRepository.getAllProducts({}, { limit: 20 });
+
     res.render("products", {
       title: "Productos",
       user: user,
+      products: products,
       isAdmin: user.role === "admin",
+      isPremium: user.role === "premium",
       welcomeMessage: `¡Bienvenido/a, ${user.first_name}!`,
     });
   } catch (error) {

@@ -1,7 +1,12 @@
 const express = require("express");
 const router = express.Router();
 const passport = require("passport");
-const { isUser, isAdminOrUser } = require("../middleware/authorization");
+const {
+  isUser,
+  isAdminOrUser,
+  canBuy,
+  isUserOrPremium,
+} = require("../middleware/authorization");
 const cartRepository = require("../repositories/cart.repository");
 const productRepository = require("../repositories/product.repository");
 const ticketRepository = require("../repositories/ticket.repository");
@@ -9,7 +14,7 @@ const { sendPurchaseConfirmation } = require("../services/mail.service");
 const TicketDTO = require("../dto/ticket.dto");
 
 // GET /api/carts/:cid - Obtener carrito por ID
-router.get("/:cid", isAdminOrUser, async (req, res) => {
+router.get("/:cid", isUserOrPremium, async (req, res) => {
   try {
     const cart = await cartRepository.getCartById(req.params.cid);
     if (!cart) {
@@ -23,8 +28,9 @@ router.get("/:cid", isAdminOrUser, async (req, res) => {
   }
 });
 
-// POST /api/carts/:cid/products/:pid - Agregar producto al carrito (solo user)
-router.post("/:cid/products/:pid", isUser, async (req, res) => {
+// POST /api/carts/:cid/products/:pid - Agregar producto al carrito (user y premium)
+// Premium no puede agregar sus propios productos al carrito
+router.post("/:cid/products/:pid", canBuy, async (req, res) => {
   try {
     const { cid, pid } = req.params;
     const { quantity = 1 } = req.body;
@@ -42,6 +48,17 @@ router.post("/:cid/products/:pid", isUser, async (req, res) => {
         .json({ status: "error", message: "No puedes modificar este carrito" });
     }
 
+    // Verificar si el usuario premium intenta agregar su propio producto
+    if (req.user.role === "premium") {
+      const product = await productRepository.getProductById(pid);
+      if (product && product.owner?.toString() === req.user._id.toString()) {
+        return res.status(403).json({
+          status: "error",
+          message: "No puedes agregar tu propio producto al carrito",
+        });
+      }
+    }
+
     const updatedCart = await cartRepository.addProductToCart(
       cid,
       pid,
@@ -54,7 +71,7 @@ router.post("/:cid/products/:pid", isUser, async (req, res) => {
 });
 
 // DELETE /api/carts/:cid/products/:pid - Eliminar producto del carrito
-router.delete("/:cid/products/:pid", isUser, async (req, res) => {
+router.delete("/:cid/products/:pid", canBuy, async (req, res) => {
   try {
     const { cid, pid } = req.params;
 
@@ -73,7 +90,7 @@ router.delete("/:cid/products/:pid", isUser, async (req, res) => {
 });
 
 // PUT /api/carts/:cid/products/:pid - Actualizar cantidad de producto
-router.put("/:cid/products/:pid", isUser, async (req, res) => {
+router.put("/:cid/products/:pid", canBuy, async (req, res) => {
   try {
     const { cid, pid } = req.params;
     const { quantity } = req.body;
@@ -97,7 +114,7 @@ router.put("/:cid/products/:pid", isUser, async (req, res) => {
 });
 
 // DELETE /api/carts/:cid - Vaciar carrito
-router.delete("/:cid", isUser, async (req, res) => {
+router.delete("/:cid", canBuy, async (req, res) => {
   try {
     const cart = await cartRepository.getCartById(req.params.cid);
     if (cart.user.toString() !== req.user._id.toString()) {
@@ -113,8 +130,8 @@ router.delete("/:cid", isUser, async (req, res) => {
   }
 });
 
-// POST /api/carts/:cid/purchase - Finalizar compra
-router.post("/:cid/purchase", isUser, async (req, res) => {
+// POST /api/carts/:cid/purchase - Finalizar compra (user y premium)
+router.post("/:cid/purchase", canBuy, async (req, res) => {
   try {
     const cart = await cartRepository.getCartById(req.params.cid);
     if (!cart) {
