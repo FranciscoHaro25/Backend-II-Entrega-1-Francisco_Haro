@@ -84,6 +84,12 @@ app.use("/users", usersViewsRoutes);
 const apiSessionsRoutes = require("./routes/api-sessions");
 app.use("/api/sessions", apiSessionsRoutes);
 
+const apiProductsRoutes = require("./routes/api-products");
+app.use("/api/products", apiProductsRoutes);
+
+const apiCartsRoutes = require("./routes/api-carts");
+app.use("/api/carts", apiCartsRoutes);
+
 app.use("/", viewRoutes);
 app.use("/auth", authRoutes);
 app.use("/products", productRoutes);
