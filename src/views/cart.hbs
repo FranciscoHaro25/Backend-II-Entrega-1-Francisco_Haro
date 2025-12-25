@@ -1,0 +1,325 @@
+<div class="row">
+  <div class="col-12">
+    <div id="alertContainer"></div>
+
+    <nav aria-label="breadcrumb" class="mb-3">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/products">Productos</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Mi Carrito</li>
+      </ol>
+    </nav>
+
+    <div class="card mb-4">
+      <div
+        class="card-header bg-primary text-white d-flex justify-content-between align-items-center"
+      >
+        <h4 class="mb-0">
+          <i class="fas fa-shopping-cart me-2"></i>Mi Carrito de Compras
+        </h4>
+        {{#if cart.products.length}}
+          <span class="badge bg-light text-primary">
+            {{cart.products.length}}
+            producto(s)
+          </span>
+        {{/if}}
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <!-- Productos del carrito -->
+  <div class="col-lg-8 mb-4">
+    <div class="card h-100">
+      <div class="card-body">
+        {{#if cart.products.length}}
+          <div class="table-responsive">
+            <table class="table table-hover align-middle">
+              <thead class="table-light">
+                <tr>
+                  <th>Producto</th>
+                  <th class="text-center" style="width: 150px;">Cantidad</th>
+                  <th class="text-end">Precio</th>
+                  <th class="text-end">Subtotal</th>
+                  <th class="text-center">Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="cartItems">
+                {{#each cart.products}}
+                  <tr id="cart-item-{{this.product._id}}">
+                    <td>
+                      <div class="d-flex align-items-center">
+                        <div class="bg-light rounded p-2 me-3">
+                          <i class="fas fa-box text-primary fa-2x"></i>
+                        </div>
+                        <div>
+                          <h6 class="mb-0">{{this.product.title}}</h6>
+                          <small class="text-muted">
+                            {{this.product.category}}
+                            | Stock:
+                            {{this.product.stock}}
+                          </small>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="text-center">
+                      <div
+                        class="input-group input-group-sm justify-content-center"
+                        style="max-width: 120px; margin: 0 auto;"
+                      >
+                        <button
+                          class="btn btn-outline-secondary"
+                          type="button"
+                          onclick="updateQuantity('{{this.product._id}}', {{this.quantity}}, -1)"
+                        >
+                          <i class="fas fa-minus"></i>
+                        </button>
+                        <input
+                          type="text"
+                          class="form-control text-center"
+                          value="{{this.quantity}}"
+                          readonly
+                          style="max-width: 50px;"
+                        />
+                        <button
+                          class="btn btn-outline-secondary"
+                          type="button"
+                          onclick="updateQuantity('{{this.product._id}}', {{this.quantity}}, 1)"
+                        >
+                          <i class="fas fa-plus"></i>
+                        </button>
+                      </div>
+                    </td>
+                    <td class="text-end">
+                      <span class="text-muted">${{this.product.price}}</span>
+                    </td>
+                    <td class="text-end">
+                      <strong class="text-primary">${{this.subtotal}}</strong>
+                    </td>
+                    <td class="text-center">
+                      <button
+                        class="btn btn-outline-danger btn-sm"
+                        onclick="removeFromCart('{{this.product._id}}', '{{this.product.title}}')"
+                      >
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </td>
+                  </tr>
+                {{/each}}
+              </tbody>
+            </table>
+          </div>
+
+          <div class="d-flex justify-content-between mt-3">
+            <a href="/products" class="btn btn-outline-primary">
+              <i class="fas fa-arrow-left me-2"></i>Seguir Comprando
+            </a>
+            <button class="btn btn-outline-danger" onclick="clearCart()">
+              <i class="fas fa-trash-alt me-2"></i>Vaciar Carrito
+            </button>
+          </div>
+        {{else}}
+          <div class="text-center py-5">
+            <i class="fas fa-shopping-cart fa-4x text-muted mb-4"></i>
+            <h5 class="text-muted">Tu carrito está vacío</h5>
+            <p class="text-muted mb-4">¡Agrega productos para comenzar a
+              comprar!</p>
+            <a href="/products" class="btn btn-primary">
+              <i class="fas fa-shopping-bag me-2"></i>Ver Productos
+            </a>
+          </div>
+        {{/if}}
+      </div>
+    </div>
+  </div>
+
+  <!-- Resumen del pedido -->
+  <div class="col-lg-4 mb-4">
+    <div class="card">
+      <div class="card-header bg-light">
+        <h5 class="card-title mb-0">
+          <i class="fas fa-receipt me-2"></i>Resumen del Pedido
+        </h5>
+      </div>
+      <div class="card-body">
+        <div class="d-flex justify-content-between mb-2">
+          <span>Subtotal ({{cart.itemCount}} items)</span>
+          <span>${{cart.totalAmount}}</span>
+        </div>
+        <div class="d-flex justify-content-between mb-2">
+          <span>Envío</span>
+          <span class="text-success">Gratis</span>
+        </div>
+        <hr />
+        <div class="d-flex justify-content-between mb-3">
+          <strong>Total</strong>
+          <strong class="text-primary fs-4">${{cart.totalAmount}}</strong>
+        </div>
+
+        {{#if cart.products.length}}
+          <button
+            class="btn btn-primary btn-lg w-100"
+            onclick="finalizePurchase()"
+            id="purchaseBtn"
+          >
+            <i class="fas fa-credit-card me-2"></i>Finalizar Compra
+          </button>
+          <p class="text-muted small text-center mt-2 mb-0">
+            <i class="fas fa-lock me-1"></i>Pago seguro
+          </p>
+        {{else}}
+          <button class="btn btn-secondary btn-lg w-100" disabled>
+            <i class="fas fa-credit-card me-2"></i>Finalizar Compra
+          </button>
+        {{/if}}
+      </div>
+    </div>
+
+    <!-- Información del usuario -->
+    <div class="card mt-3">
+      <div class="card-header bg-light">
+        <h6 class="card-title mb-0">
+          <i class="fas fa-user me-2"></i>Datos de Compra
+        </h6>
+      </div>
+      <div class="card-body">
+        <p class="mb-1"><strong>{{user.first_name}}
+            {{user.last_name}}</strong></p>
+        <p class="mb-0 text-muted small">{{user.email}}</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Confirmación de Compra -->
+<div class="modal fade" id="purchaseModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title">
+          <i class="fas fa-check-circle me-2"></i>¡Compra Exitosa!
+        </h5>
+        <button
+          type="button"
+          class="btn-close btn-close-white"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body text-center py-4">
+        <i class="fas fa-shopping-bag fa-4x text-success mb-3"></i>
+        <h4>¡Gracias por tu compra!</h4>
+        <p class="text-muted" id="ticketInfo">Tu ticket ha sido generado.</p>
+        <div class="alert alert-info" id="ticketDetails"></div>
+        <div id="notProcessedWarning" class="alert alert-warning d-none">
+          <i class="fas fa-exclamation-triangle me-2"></i>
+          <span id="notProcessedText"></span>
+        </div>
+      </div>
+      <div class="modal-footer justify-content-center">
+        <a href="/products" class="btn btn-primary">
+          <i class="fas fa-shopping-bag me-2"></i>Seguir Comprando
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Confirmación de Eliminación -->
+<div class="modal fade" id="removeModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-warning">
+        <h5 class="modal-title">
+          <i class="fas fa-exclamation-triangle me-2"></i>Confirmar Eliminación
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <p>¿Estás seguro de que deseas eliminar
+          <strong id="removeProductName"></strong>
+          del carrito?</p>
+      </div>
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-secondary"
+          data-bs-dismiss="modal"
+        >Cancelar</button>
+        <button type="button" class="btn btn-danger" id="confirmRemoveBtn">
+          <i class="fas fa-trash me-1"></i>Eliminar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  var cartId = '{{cart._id}}'; var currentRemoveProductId = null; function
+  showAlert(message, type) { if (!type) type = 'success'; var icon = type ===
+  'success' ? 'check-circle' : 'exclamation-circle'; var html = '<div
+  class="alert alert-' + type + ' alert-dismissible fade show" role="alert">';
+  html += '<i class="fas fa-' + icon + ' me-2"></i>' + message; html += '<button
+  type="button" class="btn-close" data-bs-dismiss="alert"></button></div>';
+  document.getElementById('alertContainer').innerHTML = html;
+  setTimeout(function() { var el = document.querySelector('#alertContainer
+  .alert'); if (el) el.remove(); }, 5000); } function updateQuantity(productId,
+  currentQty, change) { var newQty = currentQty + change; if (newQty < 1) {
+  removeFromCart(productId, ''); return; } var url = '/api/carts/' + cartId +
+  '/products/' + productId; fetch(url, { method: 'PUT', headers: {
+  'Content-Type': 'application/json' }, body: JSON.stringify({ quantity: newQty
+  }) }) .then(function(res) { return res.json(); }) .then(function(data) { if
+  (data.status === 'success') { window.location.reload(); } else {
+  showAlert(data.message || 'Error al actualizar cantidad', 'danger'); } })
+  .catch(function(err) { showAlert('Error de conexión: ' + err.message,
+  'danger'); }); } function removeFromCart(productId, productName) {
+  currentRemoveProductId = productId; if (productName && productName.length > 0)
+  { document.getElementById('removeProductName').textContent = productName; var
+  modal = new bootstrap.Modal(document.getElementById('removeModal'));
+  modal.show(); } else { confirmRemove(); } } function confirmRemove() { if
+  (!currentRemoveProductId) return; var url = '/api/carts/' + cartId +
+  '/products/' + currentRemoveProductId; fetch(url, { method: 'DELETE' })
+  .then(function(res) { return res.json(); }) .then(function(data) { if
+  (data.status === 'success') { window.location.reload(); } else {
+  showAlert(data.message || 'Error al eliminar producto', 'danger'); } })
+  .catch(function(err) { showAlert('Error de conexión: ' + err.message,
+  'danger'); }); }
+  document.getElementById('confirmRemoveBtn').addEventListener('click',
+  function() {
+  bootstrap.Modal.getInstance(document.getElementById('removeModal')).hide();
+  confirmRemove(); }); function clearCart() { if (!confirm('¿Estás seguro de que
+  deseas vaciar el carrito?')) return; fetch('/api/carts/' + cartId, { method:
+  'DELETE' }) .then(function(res) { return res.json(); }) .then(function(data) {
+  if (data.status === 'success') { showAlert('Carrito vaciado correctamente');
+  setTimeout(function() { window.location.reload(); }, 1000); } else {
+  showAlert(data.message || 'Error al vaciar el carrito', 'danger'); } })
+  .catch(function(err) { showAlert('Error de conexión: ' + err.message,
+  'danger'); }); } function finalizePurchase() { var btn =
+  document.getElementById('purchaseBtn'); btn.disabled = true; btn.innerHTML =
+  '<span class="spinner-border spinner-border-sm me-2"></span>Procesando...';
+  fetch('/api/carts/' + cartId + '/purchase', { method: 'POST', headers: {
+  'Content-Type': 'application/json' } }) .then(function(res) { return
+  res.json(); }) .then(function(data) { if (data.status === 'success') { var
+  ticket = data.ticket; var details = '<strong>Ticket #' + ticket.code +
+  '</strong><br>'; details += '<small>Total: $' +
+  Number(ticket.amount).toFixed(2) + '</small><br>'; details += '<small>Fecha: '
+  + new Date(ticket.purchase_datetime).toLocaleString() + '</small>';
+  document.getElementById('ticketDetails').innerHTML = details; if
+  (data.productsNotProcessed && data.productsNotProcessed.length > 0) {
+  document.getElementById('notProcessedWarning').classList.remove('d-none');
+  document.getElementById('notProcessedText').textContent = 'Algunos productos
+  no pudieron procesarse por falta de stock.'; } var modal = new
+  bootstrap.Modal(document.getElementById('purchaseModal')); modal.show();
+  document.getElementById('purchaseModal').addEventListener('hidden.bs.modal',
+  function() { window.location.reload(); }); } else { showAlert(data.message ||
+  'Error al procesar la compra', 'danger'); btn.disabled = false; btn.innerHTML
+  = '<i class="fas fa-credit-card me-2"></i>Finalizar Compra'; } })
+  .catch(function(err) { showAlert('Error de conexión: ' + err.message,
+  'danger'); btn.disabled = false; btn.innerHTML = '<i class="fas fa-credit-card
+  me-2"></i>Finalizar Compra'; }); }
+</script>

@@ -34,6 +34,18 @@
         </a>
         <div class="navbar-nav ms-auto">
           {{#if isAuthenticated}}
+            {{#unless isAdmin}}
+              <a class="nav-link position-relative me-3" href="/products/cart">
+                <i class="fas fa-shopping-cart"></i>
+                {{#if cartSummary.itemCount}}
+                  <span
+                    class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                  >
+                    {{cartSummary.itemCount}}
+                  </span>
+                {{/if}}
+              </a>
+            {{/unless}}
             <span class="nav-link">
               <i class="fas fa-user me-1"></i>
               {{user.first_name}}

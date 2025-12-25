@@ -6,6 +6,7 @@ const {
   logActivity,
 } = require("../middleware/auth");
 const productRepository = require("../repositories/product.repository");
+const cartService = require("../services/cart.service");
 
 // Aplicar middleware de autenticación a todas las rutas de productos
 router.use(requireAuth);
@@ -20,18 +21,53 @@ router.get("/", logActivity("Acceso a productos"), async (req, res) => {
     // Obtener productos de la base de datos
     const products = await productRepository.getAllProducts({}, { limit: 20 });
 
+    // Obtener resumen del carrito para el header
+    const cartSummary = await cartService.getCartSummary(user._id);
+
     res.render("products", {
       title: "Productos",
       user: user,
       products: products,
       isAdmin: user.role === "admin",
       isPremium: user.role === "premium",
+      cartSummary: cartSummary,
       welcomeMessage: `¡Bienvenido/a, ${user.first_name}!`,
     });
   } catch (error) {
     res.status(500).render("error", {
       title: "Error del servidor",
       message: "No se pudieron cargar los productos. Intenta nuevamente.",
+      statusCode: 500,
+    });
+  }
+});
+
+// GET /products/cart - Vista del carrito del usuario
+router.get("/cart", logActivity("Acceso al carrito"), async (req, res) => {
+  try {
+    const user = req.user.toObject ? req.user.toObject() : req.user;
+
+    // Solo usuarios y premium pueden ver el carrito
+    if (user.role === "admin") {
+      return res.redirect(
+        "/products?message=Los administradores no tienen carrito"
+      );
+    }
+
+    // Obtener carrito del usuario usando el servicio
+    const cart = await cartService.getCartByUser(user._id);
+
+    res.render("cart", {
+      title: "Mi Carrito",
+      user: user,
+      cart: cart,
+      isAdmin: false,
+      isPremium: user.role === "premium",
+    });
+  } catch (error) {
+    res.status(500).render("error", {
+      title: "Error del servidor",
+      message: "No se pudo cargar el carrito. Intenta nuevamente.",
       statusCode: 500,
     });
   }
