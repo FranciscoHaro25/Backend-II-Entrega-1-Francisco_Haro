@@ -4,6 +4,7 @@ const GitHubStrategy = require("passport-github2").Strategy;
 const JwtStrategy = require("passport-jwt").Strategy;
 const ExtractJwt = require("passport-jwt").ExtractJwt;
 const User = require("../models/User");
+const Cart = require("../models/Cart");
 const bcrypt = require("bcrypt");
 
 passport.serializeUser((user, done) => {
@@ -96,6 +97,15 @@ passport.use(
         });
 
         const savedUser = await newUser.save();
+
+        // Crear carrito para usuarios que pueden comprar (user y premium)
+        if (userRole !== "admin") {
+          const newCart = new Cart({ user: savedUser._id, products: [] });
+          const savedCart = await newCart.save();
+          savedUser.cart = savedCart._id;
+          await savedUser.save();
+        }
+
         return done(null, savedUser);
       } catch (error) {
         return done(error);
@@ -191,6 +201,13 @@ passport.use(
         });
 
         const savedUser = await newUser.save();
+
+        // Crear carrito para usuario de GitHub
+        const newCart = new Cart({ user: savedUser._id, products: [] });
+        const savedCart = await newCart.save();
+        savedUser.cart = savedCart._id;
+        await savedUser.save();
+
         return done(null, savedUser);
       } catch (error) {
         return done(error, null);
