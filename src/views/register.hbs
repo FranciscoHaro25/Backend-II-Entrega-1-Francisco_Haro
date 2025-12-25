@@ -152,6 +152,24 @@
             </div>
           </div>
 
+          <div class="mb-4">
+            <label for="role" class="form-label">
+              <i class="fas fa-user-tag me-2"></i>
+              Tipo de Cuenta
+            </label>
+            <select class="form-select form-select-lg" id="role" name="role" required>
+              <option value="user" selected>Usuario - Solo comprar</option>
+              <option value="premium">Premium - Vender y comprar</option>
+              <option value="admin">Administrador - Gestión completa</option>
+            </select>
+            <div class="form-text mt-2">
+              <i class="fas fa-info-circle me-2"></i>
+              <strong>User:</strong> compra productos |
+              <strong>Premium:</strong> vende y compra (no sus propios productos) |
+              <strong>Admin:</strong> gestiona todo
+            </div>
+          </div>
+
           <div class="d-grid mb-4">
             <button type="submit" class="btn btn-primary btn-lg">
               <i class="fas fa-user-plus me-2"></i>

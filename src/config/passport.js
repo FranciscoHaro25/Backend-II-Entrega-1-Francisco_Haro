@@ -71,13 +71,17 @@ passport.use(
           });
         }
 
-        const { first_name, last_name, age } = req.body;
+        const { first_name, last_name, age, role } = req.body;
 
         if (!first_name || !last_name || !age) {
           return done(null, false, {
             message: "Todos los campos son obligatorios",
           });
         }
+
+        // Validar rol permitido
+        const validRoles = ["user", "premium", "admin"];
+        const userRole = validRoles.includes(role) ? role : "user";
 
         const saltRounds = 10;
         const hashedPassword = bcrypt.hashSync(password, saltRounds);
@@ -88,7 +92,7 @@ passport.use(
           email: email.toLowerCase().trim(),
           password: hashedPassword,
           age: parseInt(age),
-          role: "user",
+          role: userRole,
         });
 
         const savedUser = await newUser.save();
