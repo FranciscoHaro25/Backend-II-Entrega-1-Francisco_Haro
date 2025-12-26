@@ -197,16 +197,17 @@ router.post("/forgot-password", async (req, res) => {
     const { email } = req.body;
 
     if (!email) {
-      return res.status(400).json({
-        status: "error",
-        message: "El email es requerido",
+      return res.render("forgot-password", {
+        title: "Recuperar Contraseña",
+        error: "El email es requerido",
       });
     }
 
     const user = await userRepository.getUserByEmail(email);
     if (!user) {
-      return res.json({
-        status: "success",
+      return res.render("forgot-password", {
+        title: "Recuperar Contraseña",
+        success: true,
         message:
           "Si el email existe, recibirás un correo con las instrucciones",
       });
@@ -225,14 +226,16 @@ router.post("/forgot-password", async (req, res) => {
       console.log("Error al enviar email:", mailError.message);
     }
 
-    res.json({
-      status: "success",
-      message: "Si el email existe, recibirás un correo con las instrucciones",
+    res.render("forgot-password", {
+      title: "Recuperar Contraseña",
+      success: true,
+      message:
+        "Te enviamos un correo con las instrucciones para restablecer tu contraseña",
     });
   } catch (error) {
-    res.status(500).json({
-      status: "error",
-      message: "Error interno del servidor",
+    res.render("forgot-password", {
+      title: "Recuperar Contraseña",
+      error: "Error interno del servidor",
     });
   }
 });
@@ -244,38 +247,42 @@ router.post("/reset-password/:token", async (req, res) => {
     const { password } = req.body;
 
     if (!password) {
-      return res.status(400).json({
-        status: "error",
-        message: "La nueva contraseña es requerida",
+      return res.render("reset-password", {
+        title: "Restablecer Contraseña",
+        token,
+        error: "La nueva contraseña es requerida",
       });
     }
 
     const user = await userRepository.findByResetToken(token);
     if (!user) {
-      return res.status(400).json({
-        status: "error",
-        message: "El enlace de recuperación es inválido o ha expirado",
+      return res.render("reset-password", {
+        title: "Restablecer Contraseña",
+        token,
+        error: "El enlace de recuperación es inválido o ha expirado",
       });
     }
 
     // Verificar que no sea la misma contraseña
     if (await userRepository.isSamePassword(user, password)) {
-      return res.status(400).json({
-        status: "error",
-        message: "La nueva contraseña no puede ser igual a la anterior",
+      return res.render("reset-password", {
+        title: "Restablecer Contraseña",
+        token,
+        error: "La nueva contraseña no puede ser igual a la anterior",
       });
     }
 
     await userRepository.changePassword(user._id, password);
 
-    res.json({
-      status: "success",
-      message: "Contraseña actualizada correctamente",
-    });
+    // Redirigir al login con mensaje de éxito
+    res.redirect(
+      "/login?message=Contraseña actualizada correctamente. Ya puedes iniciar sesión."
+    );
   } catch (error) {
-    res.status(500).json({
-      status: "error",
-      message: "Error interno del servidor",
+    res.render("reset-password", {
+      title: "Restablecer Contraseña",
+      token: req.params.token,
+      error: "Error interno del servidor",
     });
   }
 });
