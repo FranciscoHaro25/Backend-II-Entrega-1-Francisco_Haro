@@ -201,20 +201,22 @@ const sendPurchaseConfirmation = async (email, ticket) => {
           <div style="${emailStyles.body}">
             <!-- Ticket Info -->
             <div style="${emailStyles.card}">
-              <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
-                <div>
-                  <p style="color: #718096; font-size: 12px; margin: 0;">NÚMERO DE TICKET</p>
-                  <p style="color: #2d3748; font-size: 18px; font-weight: 600; margin: 5px 0 0 0;">
-                    #${ticket.code.slice(0, 8).toUpperCase()}
-                  </p>
-                </div>
-                <div style="text-align: right;">
-                  <p style="color: #718096; font-size: 12px; margin: 0;">FECHA</p>
-                  <p style="color: #2d3748; font-size: 14px; margin: 5px 0 0 0;">
-                    ${formattedDate}
-                  </p>
-                </div>
-              </div>
+              <table style="width: 100%; border-collapse: collapse;">
+                <tr>
+                  <td style="padding: 10px 0; vertical-align: top;">
+                    <p style="color: #718096; font-size: 12px; margin: 0; text-transform: uppercase; letter-spacing: 0.5px;">Número de Ticket</p>
+                    <p style="color: #2d3748; font-size: 20px; font-weight: 700; margin: 8px 0 0 0;">
+                      #${ticket.code.slice(0, 8).toUpperCase()}
+                    </p>
+                  </td>
+                  <td style="padding: 10px 0; vertical-align: top; text-align: right;">
+                    <p style="color: #718096; font-size: 12px; margin: 0; text-transform: uppercase; letter-spacing: 0.5px;">Fecha</p>
+                    <p style="color: #2d3748; font-size: 14px; font-weight: 500; margin: 8px 0 0 0;">
+                      ${formattedDate}
+                    </p>
+                  </td>
+                </tr>
+              </table>
             </div>
             
             <!-- Products Table -->
@@ -237,13 +239,19 @@ const sendPurchaseConfirmation = async (email, ticket) => {
               </table>
               
               <!-- Total -->
-              <div style="margin-top: 20px; padding-top: 20px; border-top: 2px solid #e2e8f0;">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                  <span style="color: #2d3748; font-size: 18px; font-weight: 600;">Total pagado:</span>
-                  <span style="color: #48bb78; font-size: 24px; font-weight: 700;">$${ticket.amount.toFixed(
-                    2
-                  )}</span>
-                </div>
+              <div style="margin-top: 25px; padding-top: 20px; border-top: 2px solid #e2e8f0;">
+                <table style="width: 100%; border-collapse: collapse;">
+                  <tr>
+                    <td style="padding: 8px 0; vertical-align: middle;">
+                      <span style="color: #2d3748; font-size: 18px; font-weight: 600;">Total pagado:</span>
+                    </td>
+                    <td style="padding: 8px 0; vertical-align: middle; text-align: right;">
+                      <span style="color: #48bb78; font-size: 28px; font-weight: 700;">$${ticket.amount.toFixed(
+                        2
+                      )}</span>
+                    </td>
+                  </tr>
+                </table>
               </div>
             </div>
             
