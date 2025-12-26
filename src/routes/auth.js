@@ -3,6 +3,7 @@ const router = express.Router();
 const passport = require("passport");
 const { redirectIfAuthenticated, logActivity } = require("../middleware/auth");
 const userService = require("../services/userService");
+const { sendWelcomeEmail } = require("../services/mail.service");
 
 // POST /auth/register - Procesar registro de usuario con Passport
 router.post(
@@ -32,6 +33,11 @@ router.post(
           age: req.body.age,
         });
       }
+
+      // Enviar email de bienvenida (no bloqueante)
+      sendWelcomeEmail(user.email, user.first_name).catch((err) => {
+        console.log("Error al enviar email de bienvenida:", err.message);
+      });
 
       // Login automático después del registro exitoso
       req.logIn(user, (err) => {

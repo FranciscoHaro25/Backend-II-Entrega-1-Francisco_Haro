@@ -10,8 +10,14 @@ const {
 const cartRepository = require("../repositories/cart.repository");
 const productRepository = require("../repositories/product.repository");
 const ticketRepository = require("../repositories/ticket.repository");
-const { sendPurchaseConfirmation } = require("../services/mail.service");
+const {
+  sendPurchaseConfirmation,
+  sendLowStockAlert,
+} = require("../services/mail.service");
 const TicketDTO = require("../dto/ticket.dto");
+
+// Umbral para considerar stock bajo
+const LOW_STOCK_THRESHOLD = 10;
 
 // GET /api/carts/:cid - Obtener carrito por ID
 router.get("/:cid", isUserOrPremium, async (req, res) => {
@@ -206,6 +212,33 @@ router.post("/:cid/purchase", canBuy, async (req, res) => {
       await sendPurchaseConfirmation(req.user.email, ticket);
     } catch (mailError) {
       console.log("Error al enviar email de confirmación:", mailError.message);
+    }
+
+    // Verificar productos con stock bajo y notificar al admin
+    try {
+      const lowStockProducts = [];
+      for (const item of productsProcessed) {
+        const product = await productRepository.getProductById(item.product);
+        if (product && product.stock <= LOW_STOCK_THRESHOLD) {
+          lowStockProducts.push({
+            title: product.title,
+            stock: product.stock,
+            price: product.price,
+          });
+        }
+      }
+
+      if (lowStockProducts.length > 0 && process.env.ADMIN_EMAIL) {
+        await sendLowStockAlert(process.env.ADMIN_EMAIL, lowStockProducts);
+        console.log(
+          `Alerta de stock bajo enviada: ${lowStockProducts.length} producto(s)`
+        );
+      }
+    } catch (stockAlertError) {
+      console.log(
+        "Error al enviar alerta de stock bajo:",
+        stockAlertError.message
+      );
     }
 
     res.json({
